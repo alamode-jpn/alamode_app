@@ -5,7 +5,7 @@
 - Supabase (バックエンド・DB)
 - SharedPreferences (ローカルストレージ)
 - フォント: PinyonScript, PlayfairDisplay, ZenMaruGothic, Corinthia
-- **配布形態はWebサイト（GitHub Pages）のみ**。`ios/`・`android/`フォルダは`flutter create`時のデフォルト雛形が残っているだけで、実際にビルド・実機確認・ストア申請をした実績は無い。iPhone/Androidの実アプリ（App Store/Google Play配布）にするには、証明書発行・ストア登録・審査対応など別途まとまった作業が必要。
+- **配布形態は現状Webサイト（GitHub Pages）のみ**。Android/iOSのネイティブアプリ化を進行中（詳細は末尾「iOS/Androidアプリ化」を参照）。
 
 ## Gitブランチ
 - `main`に直接pushしてよい（公開中のアプリではないため、一時的にビルドが壊れても問題ない）
@@ -269,3 +269,33 @@ lib/
 - **公開・非公開は投稿(イベント)単位でユーザーが選べる**（`useritem_public`列、デフォルトtrue=自動公開）。Memoの登録・編集画面の「画像」欄下にトグルスイッチ（`_PresentFormWidgetState._buildPublicToggle`）を表示し、ログイン中のみ操作可能。非公開にした投稿は`useritem_public_image`ビューの対象外になり他ユーザーには一切表示されない。
 - **初回ログイン時の周知**: ログイン・新規登録画面の両方に常設の注意書き（`auth.dart`の`_buildPhotoPublishNotice`）を表示し、加えて初回ログイン完了後に一度だけポップアップでも案内する（`main.dart`の`_maybeShowPhotoPublishNoticeDialog`、`photo_publish_notice_seen_$uid`で表示済み管理）。
 - 不適切な画像への対応は事前審査ではなく事後の通報制（`ItemDetailScreen`のコミュニティ画像に「通報」ボタン→`inquiry`テーブルへ`inquiry_type: 'photo_report'`で記録→運営者が手動で該当`useritem_image`をnull化する運用）。
+
+## iOS/Androidアプリ化
+
+**方針**: まずiOSをリリースする。Androidはユーザー側に実機が無く優先度が低いため、ビルドが通ることだけ確認済みで止めてある。
+
+### 現状
+- **Android**: `com.alamode.app`としてビルド設定済み。別セッションでAndroid SDKを導入し、`flutter build apk --debug`/`--release`とも成功を確認済み（`8e23ee9`、`gradlew`の実行権限と`gradle.properties`の修正込み）。Google Play Consoleアカウントは未登録。実機確認・ストア申請は今は進めない。
+- **iOS**: `com.alamode.app`としてbundle ID等は設定済みだが、**実際のビルド・実機確認はこのセッション（Linux環境）では一切できない**。Xcodeが使えるMac環境でのみ検証可能。Apple Developer Programアカウントは未登録。
+  - 対応済み: bundle ID、表示名（"a la mode"）、アプリアイコン、起動画面（LaunchImage、以前は空のプレースホルダーのままだった）、`NSCameraUsageDescription`/`NSPhotoLibraryUsageDescription`（image_picker使用に必須、無いと即クラッシュする）、不要だった`NSAllowsArbitraryLoads`（ATS全面無効化）の削除。
+  - 未対応（Macでの作業が必要）: 実機/シミュレーターでのビルド確認、署名設定（Apple Developer Programのチーム登録後）、CocoaPodsの`ios/Podfile`は`flutter build ios`等をMac上で初めて実行した際にFlutterが自動生成する（Linux環境では生成されないのが正常）。
+  - 未検討: Supabaseのメール確認・パスワードリンクを開いた際、現状はWeb版のURLへ遷移する想定になっている（`redirectTo`未指定）。ネイティブアプリに直接ディープリンクで戻したい場合は、カスタムURLスキームの登録（iOS: `CFBundleURLTypes`、Android: intent-filter）とSupabase側の「Redirect URLs」追加設定の両方が必要。現時点では「メールのリンクはブラウザで開く」動作で機能はするため、必須ではなく将来の改善項目。
+
+### App Store Connect「App Privacy」の下書き（審査申請時に入力する項目の棚卸し）
+実際にアプリが収集しているデータをもとに整理。Appleの項目名・分類は審査時期によって変わりうるため、申請直前に最新のApp Store Connect画面と突き合わせること。
+
+| 収集するデータ | Appleの分類（目安） | ユーザーに紐づくか | 用途 |
+|---|---|---|---|
+| メールアドレス | Contact Info: Email Address | 紐づく（アカウント） | App機能、アカウント管理 |
+| プロフィール名（user_name、初期値はメールアドレス） | Contact Info: Name | 紐づく | App機能 |
+| 生年月日・性別（任意入力） | Other Data | 紐づく | App機能（本人のみ閲覧） |
+| プロフィール画像・投稿写真（useritem_image等） | User Content: Photos or Videos | 紐づく | App機能（ログイン中は他ユーザーにも表示されうる、投稿単位で非公開化可） |
+| お菓子の記録内容（名前・ブランド・価格・メモ・リアクション等） | User Content: Other User Content | 紐づく | App機能 |
+| お気に入り登録 | User Content: Other User Content | 紐づく | App機能 |
+| お問い合わせ内容（お名前・メールアドレス・本文） | Contact Info + User Content: Customer Support | 紐づく場合あり（未ログインは紐づかない） | カスタマーサポート対応 |
+| 端末情報・OSバージョン・アプリバージョン・エラーログ | Diagnostics | 原則紐づかない | アプリの安定運用・不具合対応 |
+| IPアドレス・アクセス日時 | Identifiers / Diagnostics | 原則紐づかない | 不正利用防止、安定運用 |
+
+- **トラッキング（Appleの定義=他社の広告・計測目的でのデータ共有/突合）**: 現時点では「トラッキングは行っていない」と回答できる（第三者広告SDK・解析SDKは未導入）。
+- **将来の注意点**: リリース後にGoogle AdSenseを実装する際は、この回答を見直す必要がある（広告配信のためのトラッキングに該当する場合、ATT(App Tracking Transparency)のプロンプト実装と`NSUserTrackingUsageDescription`の追加、App Privacyの回答修正が必要になる）。
+- **削除申請の導線**: Apple審査ではアプリ内からのアカウント削除導線が必須（本アプリは`user.dart`の`MyPageScreen._deleteAccount()`で対応済み）。
