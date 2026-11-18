@@ -341,6 +341,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           style: TextStyle(fontSize: 12, color: AppColors.blackLight));
     }
     final top = r.people.take(5).toList();
+    final maxTotal = top.first.total; // 人ごとの棒の長さを合計件数で比較できるようにする
     return Column(children: [
       Row(children: [
         _legend(primary, '贈った'),
@@ -357,16 +358,23 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 child: Text(p.name,
                     style: const TextStyle(fontSize: 11), overflow: TextOverflow.ellipsis)),
             Expanded(
-              child: Row(children: [
-                if (p.sent > 0)
-                  Expanded(
-                      flex: p.sent,
-                      child: Container(height: 14, color: primary)),
-                if (p.received > 0)
-                  Expanded(
-                      flex: p.received,
-                      child: Container(height: 14, color: AppColors.favoriteColor)),
-              ]),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FractionallySizedBox(
+                  widthFactor: p.total / maxTotal,
+                  child: Row(children: [
+                    if (p.sent > 0)
+                      Expanded(
+                          flex: p.sent,
+                          child: Container(height: 14, color: primary)),
+                    if (p.received > 0)
+                      Expanded(
+                          flex: p.received,
+                          child: Container(
+                              height: 14, color: AppColors.favoriteColor)),
+                  ]),
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             Text('${p.sent}/${p.received}', style: const TextStyle(fontSize: 11)),
