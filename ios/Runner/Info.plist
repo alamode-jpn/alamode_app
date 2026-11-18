@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Alamode App</string>
+	<string>a la mode</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,12 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-</dict>
-<key>LSApplicationQueriesSchemes</key>
+	<key>NSCameraUsageDescription</key>
+	<string>お菓子の写真を撮影するために使用します</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>お菓子の写真を選択するために使用します</string>
+	<key>LSApplicationQueriesSchemes</key>
 <array>
     <string>https</string>
     <string>http</string>

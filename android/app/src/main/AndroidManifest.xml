@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Supabaseとの通信に必要（debug/profile用manifestにしか無く、
+         releaseビルドではネットワーク通信が一切できなくなっていた不具合を修正）。 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="alamode_app"
+        android:label="a la mode"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
