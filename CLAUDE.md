@@ -147,6 +147,9 @@ lib/
     favorite.dart   # Favタブ
     memo.dart       # Memoタブ（旧present.dart）
     user.dart       # Settingタブ
+    insights.dart   # 「あなたのお菓子レポート」（Settingタブから開く統計ビジュアル）
+  services/
+    insight_service.dart  # Memoから統計・発見を計算する純粋ロジック（端末内完結、外部送信なし）
   widgets/
     header.dart     # ヘッダー（PinyonScriptで "a la mode"）
 ```

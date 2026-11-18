@@ -7,6 +7,7 @@ import 'package:alamode_app/widgets/person_icon.dart';
 import 'package:alamode_app/view/memo.dart';
 import 'package:alamode_app/view/auth.dart';
 import 'package:alamode_app/view/legal.dart';
+import 'package:alamode_app/view/insights.dart';
 import 'package:alamode_app/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -395,6 +396,8 @@ class _UserScreenState extends State<UserScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
+                _buildInsightsEntry(),
+                const SizedBox(height: 16),
                 _buildPersonListSection(),
                 const SizedBox(height: 32),
                 _buildAuthSection(),
@@ -491,6 +494,59 @@ class _UserScreenState extends State<UserScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildInsightsEntry() {
+    final primary = Theme.of(context).primaryColor;
+    final total = _allPresents.length;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.shadowColor,
+              blurRadius: 12,
+              offset: Offset(0, 4)),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const InsightsScreen())),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(Icons.auto_graph_rounded, color: primary, size: 28),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('あなたのお菓子レポート',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(
+                        total == 0
+                            ? '記録すると、好みや傾向が見えてきます'
+                            : '$total件の記録から見つかった発見を見る',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.blackLight),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: AppColors.blackLight),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
