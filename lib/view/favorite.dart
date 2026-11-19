@@ -523,22 +523,29 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
             ],
             Expanded(
-              child: _filteredList.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'まだお気に入りがありません',
-                            style: TextStyle(fontSize: 15, color: AppColors.blackLight),
+              child: RefreshIndicator(
+                onRefresh: _loadFavoriteItems,
+                child: _filteredList.isEmpty
+                  ? ListView(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 80),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'まだお気に入りがありません',
+                                style: TextStyle(fontSize: 15, color: AppColors.blackLight),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Search からハートを押して登録できます',
+                                style: TextStyle(fontSize: 12, color: AppColors.greyDark),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Search からハートを押して登録できます',
-                            style: TextStyle(fontSize: 12, color: AppColors.greyDark),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     )
                   : ListView.builder(
                       itemCount: AdUtils.adsEnabled
@@ -576,6 +583,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         );
                       },
                     ),
+              ),
             ),
           ],
         ),

@@ -1778,33 +1778,41 @@ class _PresentListState extends State<PresentList> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _filteredList.isEmpty
-                    ? const Center(
-                        child: Text(
-                          '右下の＋ボタンから登録してください',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: AdUtils.adsEnabled
-                            ? AdUtils.calculateListItemCount(
-                                _filteredList.length)
-                            : _filteredList.length,
-                        itemBuilder: (context, index) {
-                          if (AdUtils.adsEnabled &&
-                              AdUtils.shouldShowAdAt(index)) {
-                            return AdUtils.buildAdBanner();
-                          }
-                          final itemIndex = AdUtils.adsEnabled
-                              ? AdUtils.getActualItemIndex(index)
-                              : index;
-                          if (itemIndex >= _filteredList.length) {
-                            return const SizedBox.shrink();
-                          }
-                          return _buildPresentItem(_filteredList[itemIndex]);
-                        },
-                      ),
+                : RefreshIndicator(
+                    onRefresh: _loadPresentList,
+                    child: _filteredList.isEmpty
+                        ? ListView(
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.only(top: 80),
+                                child: Text(
+                                  '右下の＋ボタンから登録してください',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            itemCount: AdUtils.adsEnabled
+                                ? AdUtils.calculateListItemCount(
+                                    _filteredList.length)
+                                : _filteredList.length,
+                            itemBuilder: (context, index) {
+                              if (AdUtils.adsEnabled &&
+                                  AdUtils.shouldShowAdAt(index)) {
+                                return AdUtils.buildAdBanner();
+                              }
+                              final itemIndex = AdUtils.adsEnabled
+                                  ? AdUtils.getActualItemIndex(index)
+                                  : index;
+                              if (itemIndex >= _filteredList.length) {
+                                return const SizedBox.shrink();
+                              }
+                              return _buildPresentItem(_filteredList[itemIndex]);
+                            },
+                          ),
+                  ),
           ),
         ],
       ),
@@ -2353,6 +2361,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
   Map<String, dynamic>? _linkedItem;
   bool _showApprovalPrompt = false;
   bool _isPublic = true;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -2915,6 +2924,8 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
 
   Future<void> _savePresent() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
 
     try {
       // 新しい画像を保存（ログイン中は他ユーザーにも見えるようStorageへ、
@@ -2977,6 +2988,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
       Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
+        setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('保存に失敗しました: $e')),
         );
@@ -3401,7 +3413,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _savePresent,
+                      onPressed: _isSaving ? null : _savePresent,
                       style: ElevatedButton.styleFrom(
                         foregroundColor: AppColors.blackDark,
                         shape: RoundedRectangleBorder(
@@ -3411,7 +3423,16 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                         elevation: 2,
                         shadowColor: AppColors.shadowColor,
                       ),
-                      child: const Text(
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
                         '保存',
                         style: TextStyle(
                             fontSize: 16,
