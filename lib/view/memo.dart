@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:convert';
@@ -3539,8 +3540,16 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   List<Map<String, dynamic>> _searchResults = [];
   bool _hasSearched = false;
   bool _isLoading = false;
+  Timer? _debounce;
+  int _searchRequestId = 0;
+
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () => _performSearch(query));
+  }
 
   void _performSearch(String query) async {
+    final requestId = ++_searchRequestId;
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -3589,7 +3598,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
 
       presentLogger.info('検索結果件数: ${filteredResults.length}');
 
-      if (mounted) {
+      if (mounted && requestId == _searchRequestId) {
         setState(() {
           _searchResults = filteredResults;
           _isLoading = false;
@@ -3597,7 +3606,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
       }
     } catch (error) {
       presentLogger.severe('検索エラー詳細: $error');
-      if (mounted) {
+      if (mounted && requestId == _searchRequestId) {
         setState(() {
           _searchResults = [];
           _isLoading = false;
@@ -3659,7 +3668,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                 filled: true,
                 fillColor: AppColors.cardBackground,
               ),
-              onChanged: _performSearch,
+              onChanged: _onSearchChanged,
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -3818,6 +3827,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }

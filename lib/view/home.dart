@@ -2833,6 +2833,7 @@ class FavoriteButton extends StatefulWidget {
 
 class _FavoriteButtonState extends State<FavoriteButton> {
   late Future<bool> _isFavoriteFuture;
+  bool _isToggling = false;
 
   @override
   void initState() {
@@ -2845,11 +2846,18 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   }
 
   Future<void> _toggleFavorite() async {
-    await FavoriteService.instance.toggle(widget.itemId);
-    setState(() {
-      _isFavoriteFuture = _checkFavoriteStatus();
-    });
-    widget.onFavoriteChanged();
+    if (_isToggling) return;
+    _isToggling = true;
+    try {
+      await FavoriteService.instance.toggle(widget.itemId);
+      if (!mounted) return;
+      setState(() {
+        _isFavoriteFuture = _checkFavoriteStatus();
+      });
+      widget.onFavoriteChanged();
+    } finally {
+      _isToggling = false;
+    }
   }
 
   @override

@@ -1235,6 +1235,8 @@ class _ContactFormWidgetState extends State<_ContactFormWidget> {
   // ボットとみなして送信を握りつぶす）。
   final TextEditingController _honeypotController = TextEditingController();
 
+  bool _isSubmittingInquiry = false;
+
   @override
   void dispose() {
     _bugReportController.dispose();
@@ -2108,6 +2110,28 @@ class _ContactFormWidgetState extends State<_ContactFormWidget> {
   static const _lastInquirySubmitKey = 'last_inquiry_submit_ms';
 
   Future<void> _submitInquiry({
+    required String type,
+    required String content,
+    String? name,
+    String? email,
+    String? company,
+  }) async {
+    if (_isSubmittingInquiry) return;
+    _isSubmittingInquiry = true;
+    try {
+      await _doSubmitInquiry(
+        type: type,
+        content: content,
+        name: name,
+        email: email,
+        company: company,
+      );
+    } finally {
+      _isSubmittingInquiry = false;
+    }
+  }
+
+  Future<void> _doSubmitInquiry({
     required String type,
     required String content,
     String? name,
