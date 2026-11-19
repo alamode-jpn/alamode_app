@@ -2363,11 +2363,13 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
   bool _showApprovalPrompt = false;
   bool _isPublic = true;
   bool _isSaving = false;
+  late String _initialSnapshot;
 
   @override
   void initState() {
     super.initState();
     _initializeForm();
+    _initialSnapshot = _formSnapshot();
     _loadAllWhoNames();
     _loadLinkedItemIfNeeded();
     _whoFocusNode.addListener(() {
@@ -2553,6 +2555,53 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
     }
 
     _controllers['present_memo']!.addListener(_updateRemainingChars);
+  }
+
+  String _formSnapshot() {
+    return [
+      _controllers['present_name']?.text ?? '',
+      _controllers['present_brand']?.text ?? '',
+      _controllers['present_price']?.text ?? '',
+      _controllers['present_memo']?.text ?? '',
+      _whoFieldController.text,
+      _selectedDate?.toIso8601String() ?? '',
+      (_selectedGenres.toList()..sort()).join(','),
+      CommonWidgets.serializeConditionStates(_conditionStates),
+      _presentReaction.toString(),
+      _isPublic.toString(),
+      _existingImageUrls.join(','),
+      _pickedFiles.length.toString(),
+    ].join('|');
+  }
+
+  bool get _isDirty => _formSnapshot() != _initialSnapshot;
+
+  Future<void> _attemptClose({dynamic result}) async {
+    if (!_isDirty) {
+      if (mounted) Navigator.of(context).pop(result);
+      return;
+    }
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('保存せずに閉じますか？'),
+        content: const Text('入力した内容はまだ保存されていません。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('入力を続ける'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: AppColors.errorColor),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('保存せず閉じる'),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) {
+      Navigator.of(context).pop(result);
+    }
   }
 
   @override
@@ -3133,27 +3182,33 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
       title = '貰ったお菓子を記録';
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
-        actions: [
-          if (widget.initialPresent != null)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: _showDeleteConfirmation,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _attemptClose(result: result);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            title,
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
-        ],
+          ),
+          elevation: 0,
+          iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
+          actions: [
+            if (widget.initialPresent != null)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: _showDeleteConfirmation,
+              ),
+          ],
+        ),
+        body: _buildForm(),
       ),
-      body: _buildForm(),
     );
   }
 
@@ -3446,7 +3501,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context, false),
+                      onPressed: () => _attemptClose(result: false),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.greyMedium,
                         foregroundColor: AppColors.blackLight,
