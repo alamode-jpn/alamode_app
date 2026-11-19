@@ -147,9 +147,22 @@ lib/
     favorite.dart   # Favタブ
     memo.dart       # Memoタブ（旧present.dart）
     user.dart       # Settingタブ
+    person_management.dart  # 人物管理画面（who一覧・リネーム・統合・削除。Setting内と
+                             # Memoの「贈った相手」欄のアイコンボタン、両方から遷移）
+  services/
+    person_service.dart     # 人物管理画面のSupabase操作（who/eventのCRUD・統合）
   widgets/
     header.dart     # ヘッダー（PinyonScriptで "a la mode"）
+    person_icon.dart        # PersonIconService(アイコンのローカル保存)・PersonAvatar・
+                             # PersonIconPickerDialog
 ```
+
+## 人物管理（who）
+- `who`テーブルはログインユーザーのみが持つ（guestの「贈った相手」はSupabaseの`who`に行を作らず、ローカルのpresentデータ内に文字列として埋め込まれているだけ）。そのため`person_management.dart`・`person_service.dart`は未ログイン時は「ログインすると使えます」の案内のみを表示する。
+- Memoの保存時は`AuthService.getOrCreateWho(uid, name)`が「同じuser_id×同じwho_name」の完全一致でwhoを検索し、無ければ新規作成する。**表記ゆれ（例:「田中さん」と「たなかさん」）は別人として別のwho_idが作られる**。これを解消するのが人物管理画面の「統合」機能（`PersonService.merge`）：統合元のwho_idが付いた`event`を全て統合先のwho_idへ付け替えてから、統合元の`who`行を削除する。
+- 人物管理画面の「名前を編集」（`PersonService.rename`）は`who_name`を直接UPDATEするため、過去の記録も含めて全て新しい名前に切り替わる（`event.who_id`で紐付いているため、文字列を書き換えているmemo.dart側のテキスト欄経由の編集とは異なり、こちらは正しくリネームになる）。ただし既に同じ名前の人物が別行で存在する場合はエラーを返す（同名2行のままだと`getOrCreateWho`の`.maybeSingle()`が複数行ヒットで例外を起こすため）。この場合は統合を使うよう促す。
+- 人物の削除（`PersonService.deletePerson`）は、その人物に紐づく`event`を全て削除し、どの`event`からも参照されなくなった`useritem`もあわせて削除する（memo.dartの単体削除処理と同じルール）。削除前に紐づく記録件数を確認ダイアログで表示する。
+- 人物アイコン（`PersonIconService`）は`who_id`ではなく`who_name`（文字列）をキーにSharedPreferences（端末ローカル、Supabase同期なし）へ保存している。そのため名前変更時は`PersonIconService.renameKey`で紐付けを新しい名前へ移し替え、削除・統合で不要になった名前は`removeKey`で掃除している。
 
 ## よくあるミス・注意事項
 - itemテーブルのPKは `item_id`（`id`ではない）

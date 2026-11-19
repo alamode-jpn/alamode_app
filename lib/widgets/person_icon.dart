@@ -57,6 +57,29 @@ class PersonIconService {
     return all[personName];
   }
 
+  /// 人物名を変更した際、ローカルに保存しているアイコンの紐付けも
+  /// 新しい名前に引き継ぐ（キーが人物名の文字列のため、リネーム時に
+  /// 明示的に移し替えないとアイコンが迷子になってしまう）。
+  static Future<void> renameKey(String oldName, String newName) async {
+    if (oldName == newName) return;
+    final prefs = await SharedPreferences.getInstance();
+    final current = await loadAll();
+    if (current.containsKey(oldName)) {
+      current[newName] = current[oldName]!;
+      current.remove(oldName);
+      await prefs.setString(_prefKey, jsonEncode(current));
+    }
+  }
+
+  /// 人物を削除・統合した際、使われなくなったアイコンの紐付けを掃除する。
+  static Future<void> removeKey(String personName) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = await loadAll();
+    if (current.remove(personName) != null) {
+      await prefs.setString(_prefKey, jsonEncode(current));
+    }
+  }
+
   /// ログインユーザー自身のアイコン(マイページで選択したもの)。
   /// personName別のkPersonIconsマップとは別に、userIdをキーに保存されている。
   static Future<int?> getSelfIconIndex(String userId) async {

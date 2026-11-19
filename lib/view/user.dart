@@ -7,6 +7,7 @@ import 'package:alamode_app/widgets/person_icon.dart';
 import 'package:alamode_app/view/memo.dart';
 import 'package:alamode_app/view/auth.dart';
 import 'package:alamode_app/view/legal.dart';
+import 'package:alamode_app/view/person_management.dart';
 import 'package:alamode_app/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -884,6 +885,10 @@ class _UserScreenState extends State<UserScreen> {
         'icon': Icons.palette_outlined,
       },
       {
+        'title': '人物管理',
+        'icon': Icons.people_outline,
+      },
+      {
         'title': 'アプリについて',
         'icon': Icons.info_outline,
       },
@@ -1019,6 +1024,10 @@ class _UserScreenState extends State<UserScreen> {
     Widget screen;
 
     switch (title) {
+      case '人物管理':
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const PersonManagementScreen()));
+        return;
       case 'アプリについて':
         screen = _buildAboutScreen();
         break;

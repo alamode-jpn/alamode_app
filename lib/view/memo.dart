@@ -19,6 +19,7 @@ import 'package:alamode_app/widgets/category_placeholder.dart';
 import 'package:alamode_app/widgets/person_icon.dart';
 import 'package:alamode_app/services/auth_service.dart';
 import 'package:alamode_app/view/auth.dart';
+import 'package:alamode_app/view/person_management.dart';
 
 final presentLogger = Logger('PresentManagement');
 
@@ -2866,6 +2867,17 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                 },
                 onChanged: (_) => setState(() {}),
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.manage_accounts_outlined),
+              tooltip: '人物管理',
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const PersonManagementScreen()),
+                );
+                if (mounted) await _loadAllWhoNames();
+              },
             ),
           ],
         ),
