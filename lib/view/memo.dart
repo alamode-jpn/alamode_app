@@ -3203,6 +3203,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
             if (widget.initialPresent != null)
               IconButton(
                 icon: const Icon(Icons.delete),
+                tooltip: '削除',
                 onPressed: _showDeleteConfirmation,
               ),
           ],

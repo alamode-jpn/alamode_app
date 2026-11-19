@@ -2954,6 +2954,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
             color: isFavorite ? AppColors.favoriteColor : AppColors.greyDark,
             size: 22,
           ),
+          tooltip: isFavorite ? 'お気に入り解除' : 'お気に入りに追加',
           onPressed: _toggleFavorite,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
