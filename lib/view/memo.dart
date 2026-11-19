@@ -1084,6 +1084,22 @@ class PresentManagementService {
     }
   }
 
+  /// 人物管理画面（個人詳細ページ）用。指定したwho_idに紐づく記録だけを取得する。
+  /// 返り値のMapの形は_getAllPresentsFromSupabaseと同じなので、そのまま
+  /// PresentFormWidgetのinitialPresentに渡して編集画面を開ける。
+  Future<List<Map<String, dynamic>>> getPresentsForWho(String whoId) async {
+    final uid = AuthService.instance.userId!;
+    final data = await supabase
+        .from('event')
+        .select('event_id, event_how, event_reaction_rating, event_date, event_memo, event_createdate, useritem(useritem_id, useritem_name, useritem_brand, useritem_category, useritem_price, useritem_roomtemperature, useritem_individualwrapping, useritem_online, useritem_alcohol, useritem_memo, useritem_image, useritem_image2, useritem_image3, useritem_public, item_id, useritem_approved), who(who_id, who_name)')
+        .eq('user_id', uid)
+        .eq('who_id', whoId)
+        .order('event_date', ascending: false);
+    return (data as List)
+        .map((e) => _supabaseToPresent(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<List<String>> getWhoNamesFromSupabase() async {
     final uid = AuthService.instance.userId!;
     final data = await supabase

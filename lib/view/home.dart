@@ -8,8 +8,11 @@ import 'package:alamode_app/view/memo.dart';
 import 'package:alamode_app/widgets/category_placeholder.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:alamode_app/services/auth_service.dart';
 import 'package:alamode_app/services/favorite_service.dart';
 import 'package:alamode_app/services/item_image_service.dart';
+import 'package:alamode_app/services/person_service.dart';
+import 'package:alamode_app/view/person_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final homeLogger = Logger('Home');
@@ -30,11 +33,60 @@ class _HomeScreenState extends State<HomeScreen>
   bool _showLeftArrow = false;
   bool _showRightArrow = true; // 初期状態では右矢印を表示
   bool _isLoadingGenres = true;
+  List<Map<String, dynamic>> _upcomingBirthdays = [];
 
   @override
   void initState() {
     super.initState();
     _loadGenresFromSupabase();
+    _loadUpcomingBirthdays();
+  }
+
+  Future<void> _loadUpcomingBirthdays() async {
+    if (!AuthService.instance.isLoggedIn) return;
+    try {
+      final result = await PersonService.instance.getUpcomingBirthdays();
+      if (mounted) setState(() => _upcomingBirthdays = result);
+    } catch (e) {
+      homeLogger.warning('誕生日リマインダーの取得に失敗: $e');
+    }
+  }
+
+  Widget _buildBirthdayBanner() {
+    if (_upcomingBirthdays.isEmpty) return const SizedBox.shrink();
+    final nearest = _upcomingBirthdays.first;
+    final others = _upcomingBirthdays.length - 1;
+    final daysUntil = nearest['days_until'] as int;
+    final label = daysUntil == 0
+        ? '🎂 今日は${nearest['who_name']}さんの誕生日です！'
+        : '🎂 もうすぐ${nearest['who_name']}さんの誕生日です（あと$daysUntil日）';
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PersonDetailScreen(
+            whoId: nearest['who_id'] as String,
+            whoName: nearest['who_name'] as String,
+          ),
+        ),
+      ),
+      child: Container(
+        width: double.infinity,
+        color: AppColors.favoriteColor.withValues(alpha: 0.12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                others > 0 ? '$label（ほか$others人）' : label,
+                style: const TextStyle(fontSize: 12, color: AppColors.blackDark),
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 16, color: AppColors.blackLight),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _loadGenresFromSupabase() async {
@@ -152,17 +204,24 @@ class _HomeScreenState extends State<HomeScreen>
           child: _buildTabBarWithArrow(context),
         ),
       ),
-      body: PageView.builder(
-        controller: _pageViewController,
-        onPageChanged: (index) {
-          if (!_tabController.indexIsChanging) {
-            _tabController.animateTo(index);
-          }
-        },
-        itemCount: _tabs.length,
-        itemBuilder: (context, index) {
-          return ItemList(key: ValueKey(_tabs[index]), genre: _tabs[index]);
-        },
+      body: Column(
+        children: [
+          _buildBirthdayBanner(),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageViewController,
+              onPageChanged: (index) {
+                if (!_tabController.indexIsChanging) {
+                  _tabController.animateTo(index);
+                }
+              },
+              itemCount: _tabs.length,
+              itemBuilder: (context, index) {
+                return ItemList(key: ValueKey(_tabs[index]), genre: _tabs[index]);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

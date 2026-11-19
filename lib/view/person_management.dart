@@ -5,6 +5,7 @@ import 'package:alamode_app/services/auth_service.dart';
 import 'package:alamode_app/services/person_service.dart';
 import 'package:alamode_app/view/auth.dart';
 import 'package:alamode_app/view/memo.dart' show Constants;
+import 'package:alamode_app/view/person_detail.dart';
 import 'package:alamode_app/widgets/person_icon.dart';
 
 class PersonManagementScreen extends StatefulWidget {
@@ -290,14 +291,32 @@ class _PersonManagementScreenState extends State<PersonManagementScreen> {
                           itemCount: _people.length,
                           itemBuilder: (context, index) {
                             final person = _people[index];
+                            final birthdayStr =
+                                person['who_birthday'] as String?;
+                            final birthday = birthdayStr == null
+                                ? null
+                                : DateTime.tryParse(birthdayStr);
+                            final daysUntil = daysUntilNextBirthday(birthday);
                             return ListTile(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PersonDetailScreen(
+                                    whoId: person['who_id'] as String,
+                                    whoName: person['who_name'] as String,
+                                  ),
+                                ),
+                              ),
                               leading: PersonAvatar(
                                 personName: person['who_name'] as String,
                                 radius: 20,
                               ),
                               title: Text(person['who_name'] as String),
-                              subtitle:
-                                  Text('記録 ${person['event_count']}件'),
+                              subtitle: Text(
+                                daysUntil != null && daysUntil <= 14
+                                    ? '記録 ${person['event_count']}件 ・ 🎂 あと$daysUntil日'
+                                    : '記録 ${person['event_count']}件',
+                              ),
                               trailing: PopupMenuButton<String>(
                                 tooltip: '操作',
                                 onSelected: (action) {

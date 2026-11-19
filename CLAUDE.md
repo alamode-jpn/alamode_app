@@ -149,8 +149,11 @@ lib/
     user.dart       # Settingタブ
     person_management.dart  # 人物管理画面（who一覧・リネーム・統合・削除。Setting内と
                              # Memoの「贈った相手」欄のアイコンボタン、両方から遷移）
+    person_detail.dart      # 人物詳細画面（人物管理の一覧から人物をタップで遷移。
+                             # その人との記録一覧・統計・誕生日編集）
   services/
-    person_service.dart     # 人物管理画面のSupabase操作（who/eventのCRUD・統合）
+    person_service.dart     # 人物管理・人物詳細画面のSupabase操作（who/eventのCRUD・
+                             # 統合・誕生日リマインダー計算）
   widgets/
     header.dart     # ヘッダー（PinyonScriptで "a la mode"）
     person_icon.dart        # PersonIconService(アイコンのローカル保存)・PersonAvatar・
@@ -163,6 +166,8 @@ lib/
 - 人物管理画面の「名前を編集」（`PersonService.rename`）は`who_name`を直接UPDATEするため、過去の記録も含めて全て新しい名前に切り替わる（`event.who_id`で紐付いているため、文字列を書き換えているmemo.dart側のテキスト欄経由の編集とは異なり、こちらは正しくリネームになる）。ただし既に同じ名前の人物が別行で存在する場合はエラーを返す（同名2行のままだと`getOrCreateWho`の`.maybeSingle()`が複数行ヒットで例外を起こすため）。この場合は統合を使うよう促す。
 - 人物の削除（`PersonService.deletePerson`）は、その人物に紐づく`event`を全て削除し、どの`event`からも参照されなくなった`useritem`もあわせて削除する（memo.dartの単体削除処理と同じルール）。削除前に紐づく記録件数を確認ダイアログで表示する。
 - 人物アイコン（`PersonIconService`）は`who_id`ではなく`who_name`（文字列）をキーにSharedPreferences（端末ローカル、Supabase同期なし）へ保存している。そのため名前変更時は`PersonIconService.renameKey`で紐付けを新しい名前へ移し替え、削除・統合で不要になった名前は`removeKey`で掃除している。
+- **人物詳細画面**（`person_detail.dart`、人物管理の一覧の行をタップで遷移）: `PresentManagementService.getPresentsForWho(whoId)`（`_getAllPresentsFromSupabase`と同じevent/useritem/whoのJOINにwho_idの絞り込みを足したもの。返り値の形は同じなので記録をタップすればそのまま`PresentFormWidget`で編集できる）で記録一覧を取得し、画面内で件数・合計金額（贈った/もらった別）・よく選ぶジャンル・平均反応（★）を集計表示する。
+- **誕生日リマインダー**: 元々未使用だった`who_birthday`列を人物詳細画面から編集できるようにした（`PersonService.updateBirthday`）。`PersonService.getUpcomingBirthdays()`が月日のみで「次の誕生日まで何日か」を計算し（年は無視、`daysUntilNextBirthday`）、14日以内に誕生日を迎える人物がいればHomeタブ上部に案内バナーを表示する（`home.dart`の`_HomeScreenState._buildBirthdayBanner`、タップでその人の詳細画面へ）。who同様ログインユーザーのみの機能。
 
 ## よくあるミス・注意事項
 - itemテーブルのPKは `item_id`（`id`ではない）
