@@ -394,6 +394,78 @@ class _ItemListState extends State<ItemList>
   bool get _filterPhysicalStore => _globalFilterPhysicalStore;
   set _filterPhysicalStore(bool value) => _globalFilterPhysicalStore = value;
 
+  static bool _globalFilterPrefsLoaded = false;
+  static const String _filterPrefsKey = 'home_filter_prefs_v1';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilterPrefs();
+  }
+
+  // 前回使ったフィルター・並び替え条件を復元する（genreごとのタブ全てで呼ばれるが、
+  // フィルター本体はタブ間で共有のstatic変数のため最初の1回だけ反映すればよい。
+  // 並び替えはタブごとに独立した状態なので毎回反映する）。
+  Future<void> _loadFilterPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_filterPrefsKey);
+      if (raw == null) return;
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+
+      if (!_globalFilterPrefsLoaded) {
+        _globalFilterPrefsLoaded = true;
+        _globalFilterPriceMin =
+            (data['filterPriceMin'] as num?)?.toDouble() ?? _globalFilterPriceMin;
+        _globalFilterPriceMax =
+            (data['filterPriceMax'] as num?)?.toDouble() ?? _globalFilterPriceMax;
+        _globalFilterIndividualWrapping =
+            data['filterIndividualWrapping'] as bool? ?? false;
+        _globalFilterRoomTemperature =
+            data['filterRoomTemperature'] as bool? ?? false;
+        _globalFilterOnline = data['filterOnline'] as bool? ?? false;
+        _globalFilterAlcohol = data['filterAlcohol'] as bool? ?? false;
+        _globalFilterLimited = data['filterLimited'] as bool? ?? false;
+        _globalFilterPhysicalStore = data['filterPhysicalStore'] as bool? ?? false;
+        final genreMap = data['filterGenre'] as Map<String, dynamic>?;
+        if (genreMap != null) {
+          _globalFilterGenre = genreMap.map((k, v) => MapEntry(k, v as bool));
+        }
+      }
+
+      final savedSort = data['sortBy'] as String?;
+      if (savedSort != null && mounted) {
+        setState(() {
+          _sortBy = savedSort;
+          _cachedDocs = null;
+        });
+      }
+    } catch (e) {
+      homeLogger.warning('フィルター条件の復元に失敗: $e');
+    }
+  }
+
+  Future<void> _saveFilterPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final data = {
+        'filterGenre': _filterGenre,
+        'filterPriceMin': _filterPriceMin,
+        'filterPriceMax': _filterPriceMax,
+        'filterIndividualWrapping': _filterIndividualWrapping,
+        'filterRoomTemperature': _filterRoomTemperature,
+        'filterOnline': _filterOnline,
+        'filterAlcohol': _filterAlcohol,
+        'filterLimited': _filterLimited,
+        'filterPhysicalStore': _filterPhysicalStore,
+        'sortBy': _sortBy,
+      };
+      await prefs.setString(_filterPrefsKey, jsonEncode(data));
+    } catch (e) {
+      homeLogger.warning('フィルター条件の保存に失敗: $e');
+    }
+  }
+
 // 並び替えオプション
   static const List<Map<String, String>> _sortOptions = [
     //   {'value': 'item_rating', 'label': '評価が高い順'},
@@ -644,6 +716,7 @@ class _ItemListState extends State<ItemList>
                       _sortBy = value;
                       _cachedDocs = null;
                     });
+                    _saveFilterPrefs();
                   },
                   itemBuilder: (context) => _sortOptions.map((option) {
                     return PopupMenuItem<String>(
@@ -700,6 +773,7 @@ class _ItemListState extends State<ItemList>
               setState(() {
                 _filterGenre[genre] = false;
               });
+              _saveFilterPrefs();
             },
           ));
         }
@@ -727,6 +801,7 @@ class _ItemListState extends State<ItemList>
             _filterPriceMin = 0;
             _filterPriceMax = 20000;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -738,6 +813,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterIndividualWrapping = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -749,6 +825,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterRoomTemperature = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -760,6 +837,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterOnline = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -771,6 +849,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterAlcohol = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -782,6 +861,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterLimited = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -793,6 +873,7 @@ class _ItemListState extends State<ItemList>
           setState(() {
             _filterPhysicalStore = false;
           });
+          _saveFilterPrefs();
         },
       ));
     }
@@ -961,6 +1042,7 @@ class _ItemListState extends State<ItemList>
         _filterPhysicalStore = result['filterPhysicalStore'] ?? false;
         _cachedDocs = null;
       });
+      _saveFilterPrefs();
     }
   }
 }
