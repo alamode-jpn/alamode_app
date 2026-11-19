@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       child: Container(
         width: double.infinity,
-        color: AppColors.favoriteColor.withValues(alpha: 0.12),
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
@@ -2226,10 +2226,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 color: AppColors.greyLight.withValues(alpha: 0.8),
-                                child: const Center(
+                                child: Center(
                                   child: CircularProgressIndicator(
                                     strokeWidth: 1,
-                                    color: AppColors.primaryColor,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ),
                               ),

@@ -295,24 +295,21 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: (isSent ? AppColors.favoriteColor : Colors.teal)
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          isSent ? '贈った' : 'もらった',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isSent ? AppColors.favoriteColor : Colors.teal,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Icon(
+                        isSent ? Icons.card_giftcard : Icons.restaurant,
+                        size: 12,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        isSent ? '贈った' : '貰った',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Text(present['present_date'] as String? ?? '',
                           style: const TextStyle(
                               fontSize: 11, color: AppColors.blackLight)),
