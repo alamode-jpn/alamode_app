@@ -214,6 +214,18 @@ class MyApp extends StatelessWidget {
     progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.primaryColor,
     ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: AppColors.blackDark,
+      contentTextStyle: const TextStyle(
+        fontFamily: 'NotoSerifJP',
+        color: Colors.white,
+        fontSize: 14,
+      ),
+      actionTextColor: AppColors.primaryColor.withValues(alpha: 0.85),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    ),
     fontFamily: 'NotoSerifJP',
   );
 
