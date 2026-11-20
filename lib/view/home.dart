@@ -227,6 +227,26 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildTabBarWithArrow(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 35.0,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/lace.png'),
+              repeat: ImageRepeat.repeatX,
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+        ),
+        _buildTabRow(context),
+      ],
+    );
+  }
+
+  Widget _buildTabRow(BuildContext context) {
     return Stack(
       children: [
         Container(
