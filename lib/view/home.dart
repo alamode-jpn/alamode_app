@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool _showLeftArrow = false;
   bool _showRightArrow = true; // 初期状態では右矢印を表示
   bool _isLoadingGenres = true;
+  bool _controllersInitialized = false;
   List<Map<String, dynamic>> _upcomingBirthdays = [];
 
   @override
@@ -105,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       final sortedGenres = genres.toList()..sort();
 
+      if (!mounted) return;
       setState(() {
         _tabs = ['all', ...sortedGenres];
         _isLoadingGenres = false;
@@ -113,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen>
       });
     } catch (e) {
       homeLogger.warning('Error loading genres: $e');
+      if (!mounted) return;
       setState(() {
         _isLoadingGenres = false;
         _initializeControllers();
@@ -124,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: _tabs.length, vsync: this);
     _pageViewController = PageController();
     _scrollController = ScrollController();
+    _controllersInitialized = true;
 
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
@@ -181,9 +185,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
-    _pageViewController.dispose();
-    _scrollController.dispose();
+    if (_controllersInitialized) {
+      _tabController.dispose();
+      _pageViewController.dispose();
+      _scrollController.dispose();
+    }
     super.dispose();
   }
 
