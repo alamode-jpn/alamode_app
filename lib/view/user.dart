@@ -1707,7 +1707,7 @@ class _ContactFormWidgetState extends State<_ContactFormWidget> {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: AppColors.blackDark,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -2019,7 +2019,7 @@ class _ContactFormWidgetState extends State<_ContactFormWidget> {
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: AppColors.blackDark,
+                  foregroundColor: Colors.white,
                 ),
                 child: const Text(
                   '送信',
