@@ -43,7 +43,7 @@ class AppColors {
   static const Color dialogBackground = Color(0xFFFAFAFA);
   static const Color cardBackground = Colors.white;
   static const Color shadowColor = Color(0x1A000000);
-  static const Color warmWhite = Color(0xFFFAF9F7); // 温かみのある白
+  static const Color warmWhite = Colors.white; // 背景付きロゴ等と馴染むよう真っ白に統一
 }
 
 void main() async {
@@ -155,7 +155,7 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   final ThemeData appTheme = ThemeData(
-    scaffoldBackgroundColor: const Color(0xFFFAF9F7),
+    scaffoldBackgroundColor: AppColors.warmWhite,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
