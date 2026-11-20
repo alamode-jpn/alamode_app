@@ -1835,7 +1835,7 @@ class _PresentListState extends State<PresentList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        foregroundColor: AppColors.blackDark,
+        foregroundColor: Colors.white,
         onPressed: () async {
           final result = await Navigator.push<bool>(
             context,
