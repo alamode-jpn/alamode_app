@@ -467,7 +467,7 @@ class _UserScreenState extends State<UserScreen> {
                           height: 20,
                           decoration: BoxDecoration(
                               color: color,
-                              borderRadius: BorderRadius.circular(4)),
+                              borderRadius: BorderRadius.circular(6)),
                         ),
                         const SizedBox(width: 14),
                         Expanded(

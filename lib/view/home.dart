@@ -2240,7 +2240,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 : null,
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(6),
                             child: CachedNetworkImage(
                               imageUrl: imageUrls[i],
                               fit: BoxFit.cover,

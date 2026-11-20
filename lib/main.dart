@@ -328,7 +328,7 @@ class AdUtils {
                 end: Alignment.bottomRight,
                 colors: [AppColors.greyLight, AppColors.greyMedium],
               ),
-              borderRadius: BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(
               child: Row(
@@ -355,7 +355,7 @@ class AdUtils {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: AppColors.greyDark,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
                 '広告',
