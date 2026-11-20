@@ -1029,8 +1029,9 @@ class _UserScreenState extends State<UserScreen> {
             MaterialPageRoute(builder: (_) => const PersonManagementScreen()));
         return;
       case 'アプリについて':
-        screen = _buildAboutScreen();
-        break;
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const _AboutScreen()));
+        return;
       case 'お問い合わせ':
         screen = _buildContactScreen();
         break;
@@ -1091,64 +1092,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildAboutScreen() {
-    return _buildInfoScreen(
-      title: 'アプリについて',
-      content: [
-        const Text(
-          '「ア・ラ・モード」',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.blackDark,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: const Text(
-            '「今年の帰省は何のお土産を持って行こう？ 前回は何を贈ったのだったっけ？」「この前食べたあのお菓子、とっても美味しかったけど、似たお菓子を開拓したいなぁ」\n\n'
-            'このアプリは、大切な人への贈り物や、自分にとってのご褒美を記録するために作られました。\n\n'
-            '「ア・ラ・モード」は、フランス語で「流行の」「おしゃれな」という意味。日本では「プリン・ア・ラ・モード」を思い浮かべる人が多いと思います。\n'
-            'たくさんのキラキラしたお菓子を、一つのお皿にギュッと詰め込んだアプリにしたいという想いから名前をつけました。\n\n'
-            'これからも皆様に使いやすく気に入っていただけるアプリになるよう、アップデートして参ります。',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.blackDark,
-              height: 1.7,
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        // イラスト挿入予定
-        Container(
-          height: 180,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.greyLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        const SizedBox(height: 32),
-        const Text(
-          '主な機能',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.blackDark,
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildFeatureItem(context, Icons.search, '商品検索',
-            'おすすめ商品を編集部が随時更新しています。お気に入りをして、贈り物やご褒美の参考にできます'),
-        _buildFeatureItem(
-            context, Icons.edit, '反応や評価を記録', 'Memoタブから贈った時の反応や自己評価を5段階で記録できます'),
-        _buildFeatureItem(context, Icons.people_outline, '人別管理',
-            'Memoタブで記録すると、贈った人・貰った人ごとに履歴を管理できます'),
-      ],
     );
   }
 
@@ -2234,26 +2177,21 @@ class _ContactFormWidgetState extends State<_ContactFormWidget> {
 
 Widget _buildFeatureItem(
     BuildContext context, IconData icon, String title, String description) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: AppColors.greyLight,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: AppColors.greyMedium),
-    ),
+  final primary = Theme.of(context).primaryColor;
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 28),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: BorderRadius.circular(8),
+            color: primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: primary, size: 20),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 18),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2261,18 +2199,20 @@ Widget _buildFeatureItem(
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'NotoSerifJP',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.blackDark,
+                  letterSpacing: 0.3,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 description,
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.blackLight,
-                  height: 1.5,
+                  height: 1.6,
                 ),
               ),
             ],
@@ -2281,6 +2221,253 @@ Widget _buildFeatureItem(
       ],
     ),
   );
+}
+
+// スクロールして画面内に入ってきたタイミングでふわっと浮かび上がる演出。
+// パッケージを追加せず、最も近いScrollableのスクロール位置を直接購読して
+// 自分の位置を確認する素朴な実装（一度表示されたら戻らない＝アニメーションは一回限り）。
+class _ScrollReveal extends StatefulWidget {
+  final Widget child;
+  const _ScrollReveal({required this.child});
+
+  @override
+  State<_ScrollReveal> createState() => _ScrollRevealState();
+}
+
+class _ScrollRevealState extends State<_ScrollReveal> {
+  final GlobalKey _key = GlobalKey();
+  bool _visible = false;
+  ScrollPosition? _position;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newPosition = Scrollable.maybeOf(context)?.position;
+    if (newPosition != _position) {
+      _position?.removeListener(_check);
+      _position = newPosition;
+      _position?.addListener(_check);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _check());
+  }
+
+  @override
+  void dispose() {
+    _position?.removeListener(_check);
+    super.dispose();
+  }
+
+  void _check() {
+    if (_visible || !mounted) return;
+    final box = _key.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached) return;
+    final position = box.localToGlobal(Offset.zero);
+    final screenHeight = MediaQuery.of(context).size.height;
+    // 画面下から12%のラインを越えて見えてきたら表示する
+    // （完全に入り切るのを待たないことで、読むタイミングに先回りして間に合わせる）。
+    if (position.dy < screenHeight * 0.88) {
+      setState(() => _visible = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: _key,
+      width: double.infinity,
+      child: AnimatedOpacity(
+        opacity: _visible ? 1 : 0,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeOut,
+        child: AnimatedSlide(
+          offset: _visible ? Offset.zero : const Offset(0, 0.06),
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeOutCubic,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class _AboutScreen extends StatefulWidget {
+  const _AboutScreen();
+
+  @override
+  State<_AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<_AboutScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _heroController;
+  late final Animation<double> _heroFade;
+  late final Animation<Offset> _heroSlide;
+
+  @override
+  void initState() {
+    super.initState();
+    _heroController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900));
+    _heroFade = CurvedAnimation(parent: _heroController, curve: Curves.easeOut);
+    _heroSlide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _heroController, curve: Curves.easeOutCubic));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _heroController.forward());
+  }
+
+  @override
+  void dispose() {
+    _heroController.dispose();
+    super.dispose();
+  }
+
+  Widget _quoteText(String text) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontFamily: 'NotoSerifJP',
+        fontSize: 16,
+        color: AppColors.blackDark,
+        height: 1.9,
+        letterSpacing: 0.3,
+      ),
+    );
+  }
+
+  Widget _statementText(String text, {bool emphasize = true}) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontFamily: emphasize ? 'NotoSerifJP' : null,
+        fontSize: emphasize ? 19 : 14,
+        fontWeight: emphasize ? FontWeight.w600 : FontWeight.normal,
+        color: emphasize ? AppColors.blackDark : AppColors.blackLight,
+        height: emphasize ? 1.8 : 1.8,
+        letterSpacing: emphasize ? 0.4 : 0.2,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+    return Scaffold(
+      backgroundColor: AppColors.warmWhite,
+      appBar: AppBar(
+        title: const Text(
+          'アプリについて',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: primary),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(28, 12, 28, 56),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FadeTransition(
+              opacity: _heroFade,
+              child: SlideTransition(
+                position: _heroSlide,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: themeNotifier,
+                    builder: (context, idx, _) {
+                      final key = appThemes[idx]['key'] as String;
+                      return Image.asset('assets/images/logo/$key.png', height: 48);
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 56),
+            _ScrollReveal(
+              child: _quoteText(
+                '「今年の帰省は何のお土産を持って行こう？\n前回は何を贈ったのだったっけ？」\n\n'
+                '「この前食べたあのお菓子、とっても美味しかったけど、\n似たお菓子を開拓したいなぁ」',
+              ),
+            ),
+            const SizedBox(height: 72),
+            _ScrollReveal(
+              child: _statementText(
+                'このアプリは、大切な人への贈り物や、\n自分にとってのご褒美を記録するために\n作られました。',
+              ),
+            ),
+            const SizedBox(height: 72),
+            _ScrollReveal(
+              child: Column(
+                children: [
+                  Text(
+                    '「ア・ラ・モード」',
+                    style: TextStyle(
+                      fontFamily: 'NotoSerifJP',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: primary,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _statementText(
+                    'フランス語で「流行の」「おしゃれな」という意味。\n'
+                    '日本では「プリン・ア・ラ・モード」を\n思い浮かべる人が多いと思います。\n\n'
+                    'たくさんのキラキラしたお菓子を、一つのお皿に\nギュッと詰め込んだアプリにしたいという\n想いから名前をつけました。',
+                    emphasize: false,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 72),
+            _ScrollReveal(
+              child: Column(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 1,
+                    color: AppColors.greyDark,
+                  ),
+                  const SizedBox(height: 28),
+                  _statementText(
+                    'これからも皆様に使いやすく\n気に入っていただけるアプリになるよう、\nアップデートして参ります。',
+                    emphasize: false,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 88),
+            _ScrollReveal(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '主な機能',
+                    style: TextStyle(
+                      fontFamily: 'NotoSerifJP',
+                      fontSize: 19,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blackDark,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  _buildFeatureItem(context, Icons.search, '商品検索',
+                      'おすすめ商品を編集部が随時更新しています。お気に入りをして、贈り物やご褒美の参考にできます'),
+                  _buildFeatureItem(context, Icons.edit, '反応や評価を記録',
+                      'Memoタブから贈った時の反応や自己評価を5段階で記録できます'),
+                  _buildFeatureItem(context, Icons.people_outline, '人別管理',
+                      'Memoタブで記録すると、贈った人・貰った人ごとに履歴を管理できます'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class MyPageScreen extends StatefulWidget {
