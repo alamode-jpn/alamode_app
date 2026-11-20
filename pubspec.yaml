@@ -86,16 +86,12 @@ flutter:
         - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-MediumItalic.ttf
           weight: 600
           style: italic
-    - family: ZenMaruGothic
+    - family: NotoSansJP
       fonts:
-        - asset: assets/fonts/ZenMaruGothic/ZenMaruGothic-Light.ttf
-          weight: 200
-        - asset: assets/fonts/ZenMaruGothic/ZenMaruGothic-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/ZenMaruGothic/ZenMaruGothic-Medium.ttf
-          weight: 600
-        - asset: assets/fonts/ZenMaruGothic/ZenMaruGothic-Bold.ttf
-          weight: 800
+        - asset: assets/fonts/NotoSansJP/NotoSansJP-VariableFont_wght.ttf
+    - family: NotoSerifJP
+      fonts:
+        - asset: assets/fonts/NotoSerifJP/NotoSerifJP-VariableFont_wght.ttf
     - family: Corinthia
       fonts:
         - asset: assets/fonts/Corinthia/Corinthia-Regular.ttf

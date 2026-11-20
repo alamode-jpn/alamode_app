@@ -163,7 +163,7 @@ class MyApp extends StatelessWidget {
       elevation: 0,
       iconTheme: IconThemeData(color: AppColors.blackDark),
       titleTextStyle: TextStyle(
-        fontFamily: 'ZenMaruGothic',
+        fontFamily: 'NotoSerifJP',
         color: AppColors.blackDark,
         fontSize: 17,
         fontWeight: FontWeight.w500,
@@ -171,11 +171,11 @@ class MyApp extends StatelessWidget {
     ),
     textTheme: const TextTheme(
       bodyLarge: TextStyle(
-        fontFamily: 'ZenMaruGothic',
+        fontFamily: 'NotoSansJP',
         color: AppColors.blackDark,
       ),
       bodyMedium: TextStyle(
-        fontFamily: 'ZenMaruGothic',
+        fontFamily: 'NotoSansJP',
         color: AppColors.blackDark,
       ),
       titleLarge: TextStyle(
@@ -213,7 +213,7 @@ class MyApp extends StatelessWidget {
     progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.primaryColor,
     ),
-    fontFamily: 'ZenMaruGothic',
+    fontFamily: 'NotoSansJP',
   );
 
   @override
