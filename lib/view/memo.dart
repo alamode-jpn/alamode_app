@@ -1644,7 +1644,7 @@ class _PresentListState extends State<PresentList> {
                 child: Text(
                   present['present_name'] ?? '',
                   style: const TextStyle(
-                    fontFamily: 'NotoSansJP',
+                    fontFamily: 'NotoSerifJP',
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.3,

@@ -172,11 +172,11 @@ class MyApp extends StatelessWidget {
     ),
     textTheme: const TextTheme(
       bodyLarge: TextStyle(
-        fontFamily: 'NotoSansJP',
+        fontFamily: 'NotoSerifJP',
         color: AppColors.blackDark,
       ),
       bodyMedium: TextStyle(
-        fontFamily: 'NotoSansJP',
+        fontFamily: 'NotoSerifJP',
         color: AppColors.blackDark,
       ),
       titleLarge: TextStyle(
@@ -214,7 +214,7 @@ class MyApp extends StatelessWidget {
     progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.primaryColor,
     ),
-    fontFamily: 'NotoSansJP',
+    fontFamily: 'NotoSerifJP',
   );
 
   @override

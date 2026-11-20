@@ -4,7 +4,7 @@
 - Flutter (Web, Chrome) — 起動は常に `flutter clean && flutter pub get && flutter run -d chrome`
 - Supabase (バックエンド・DB)
 - SharedPreferences (ローカルストレージ)
-- フォント: PinyonScript, PlayfairDisplay, Corinthia（いずれも英字専用の装飾フォント）、NotoSansJP（和文本文）、NotoSerifJP（和文見出し・AppBarタイトル）。和文2書体は参考サイト https://033.audio/ja の配色・書体構成（和文本文=Noto Sans JP、見出し=Noto Serif JP、いずれもGoogle Fonts）に合わせて選定した。どちらも可変フォント（1ファイルでweight軸を持つ）のため、`pubspec.yaml`では`weight:`指定なしで1行だけ登録すればよい
+- フォント: PinyonScript, PlayfairDisplay, Corinthia（いずれも英字専用の装飾フォント）、NotoSerifJP（和文、本文・見出し・AppBarタイトルすべて）。当初は参考サイト https://033.audio/ja に合わせて本文=Noto Sans JP／見出し=Noto Serif JPの2書体構成にしていたが、「全部明朝系がいい」との要望でNoto Serif JPに一本化し、NotoSansJPは`pubspec.yaml`・アセットとも削除した。可変フォント（1ファイルでweight軸を持つ）のため、`pubspec.yaml`では`weight:`指定なしで1行だけ登録すればよい
 - **配布形態は現状Webサイト（GitHub Pages）のみ**。Android/iOSのネイティブアプリ化を進行中（詳細は末尾「iOS/Androidアプリ化」を参照）。
 
 ## Gitブランチ
