@@ -167,6 +167,7 @@ class MyApp extends StatelessWidget {
         color: AppColors.blackDark,
         fontSize: 17,
         fontWeight: FontWeight.w500,
+        letterSpacing: 0.5,
       ),
     ),
     textTheme: const TextTheme(
