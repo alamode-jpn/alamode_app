@@ -478,16 +478,31 @@ class _LoginPromptDialogState extends State<LoginPromptDialog> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                const Text(
+                  'ログインして始めますか？\nそれともゲストとして始めますか？',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blackDark,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () => _dismiss(goLogin: true),
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
-                  child: const Text('ログイン / 新規登録', style: TextStyle(color: Colors.white)),
+                  child: const Text('ログインして始める', style: TextStyle(color: Colors.white)),
                 ),
                 const SizedBox(height: 8),
-                TextButton(
+                OutlinedButton(
                   onPressed: () => _dismiss(),
-                  child: const Text('あとで', style: TextStyle(color: AppColors.blackLight, fontSize: 13)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: primary),
+                  ),
+                  child: Text('ゲストとして始める', style: TextStyle(color: primary)),
                 ),
                 const SizedBox(height: 4),
                 const Text(
