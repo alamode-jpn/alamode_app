@@ -8,11 +8,18 @@ int? daysUntilNextBirthday(DateTime? birthday) {
   if (birthday == null) return null;
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-  var next = DateTime(today.year, birthday.month, birthday.day);
+  var next = _safeAnniversary(today.year, birthday.month, birthday.day);
   if (next.isBefore(today)) {
-    next = DateTime(today.year + 1, birthday.month, birthday.day);
+    next = _safeAnniversary(today.year + 1, birthday.month, birthday.day);
   }
   return next.difference(today).inDays;
+}
+
+/// 2/29生まれの誕生日を非うるう年の年に当てはめる場合など、
+/// 指定した年にその月日が存在しない場合は月末日にクランプする。
+DateTime _safeAnniversary(int year, int month, int day) {
+  final lastDayOfMonth = DateTime(year, month + 1, 0).day;
+  return DateTime(year, month, day > lastDayOfMonth ? lastDayOfMonth : day);
 }
 
 /// 「贈った相手」（whoテーブル）の管理をまとめるサービス。
