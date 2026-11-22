@@ -13,7 +13,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:alamode_app/main.dart';
 import 'package:alamode_app/widgets/category_placeholder.dart';
 import 'package:alamode_app/widgets/person_icon.dart';
@@ -3123,8 +3122,9 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.dialogBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
         content: SizedBox(
-          height: 300,
+          height: 360,
           width: 300,
           child: Theme(
             data: Theme.of(context).copyWith(
@@ -3135,17 +3135,13 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                     onSurface: AppColors.blackDark,
                   ),
             ),
-            child: SfDateRangePicker(
-              view: DateRangePickerView.month,
-              selectionMode: DateRangePickerSelectionMode.single,
-              initialSelectedDate: _selectedDate ?? DateTime.now(),
-              selectionColor: Theme.of(context).primaryColor,
-              todayHighlightColor: Theme.of(context).primaryColor,
-              onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
-                if (args.value is DateTime) {
-                  setState(() => _selectedDate = args.value);
-                  Navigator.pop(context);
-                }
+            child: CalendarDatePicker(
+              initialDate: _selectedDate ?? DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+              onDateChanged: (date) {
+                setState(() => _selectedDate = date);
+                Navigator.pop(context);
               },
             ),
           ),

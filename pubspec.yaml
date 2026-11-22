@@ -27,7 +27,7 @@ dependencies:
 
   # Supabase
   supabase_flutter: ^2.5.0
-  
+
   # ローカルストレージ
   shared_preferences: ^2.2.3
 
@@ -38,7 +38,6 @@ dependencies:
   path_provider: ^2.0.15
 
   # ユーティリティ
-  syncfusion_flutter_datepicker: ^21.2.3
   intl: ^0.18.1
   http: ^0.13.5
   url_launcher: ^6.2.2
