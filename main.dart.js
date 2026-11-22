@@ -57243,7 +57243,7 @@ case 4:case 3:p=q.c
 if(p!=null){p=A.b9(p,!1)
 p.cv(a?"login":null)}return A.q(null,r)}})
 return A.r($async$vU,r)},
-I(a){var s=this,r=null,q=A.B(a).dx,p=A.a7(20),o=A.dw(A.aoo("assets/images/others.png",B.hu,100),r,r),n=A.h1(B.ae3,new A.aPe(s),A.k2(r,r,r,r,r,r,r,r,r,r,r,r,B.n_,r,r,r,r,r,r,r)),m=A.b4L(r,r,r,r,r,r,r,r,r,r,r,r,B.n_,r,r,new A.b4(q,1,B.A,-1),r,r,r,r),l=t.p
+I(a){var s=this,r=null,q=A.B(a).dx,p=A.a7(20),o=A.dw(A.aoo("assets/images/others.webp",B.hu,100),r,r),n=A.h1(B.ae3,new A.aPe(s),A.k2(r,r,r,r,r,r,r,r,r,r,r,r,B.n_,r,r,r,r,r,r,r)),m=A.b4L(r,r,r,r,r,r,r,r,r,r,r,r,B.n_,r,r,new A.b4(q,1,B.A,-1),r,r,r,r),l=t.p
 return A.zh(r,B.dd,new A.d1(B.ap,r,B.as,B.t,A.b([new A.aU(B.Pf,A.az(A.b([o,B.dJ,B.afz,B.bp,n,B.ar,A.bbF(A.Z("\u30b2\u30b9\u30c8\u3068\u3057\u3066\u59cb\u3081\u308b",r,r,r,r,A.bh(r,r,q,r,r,r,r,r,r,r,r,r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r,r),new A.aPf(s),m),B.dJ,B.afS,B.bp,A.aZ(A.b([new A.aV(20,20,A.b9_(q,B.kG,new A.aPg(s),s.d),r),B.dI,B.afc],l),B.o,B.d1,B.k,0,r),B.dJ],l),B.cd,B.j,B.a5),r),A.dM(r,A.fq(r,r,r,B.R9,r,r,new A.aPh(s),r,r,r,"\u9589\u3058\u308b"),r,r,r,4,4,r)],l),r),r,r,r,r,B.fZ,r,new A.c5(p,B.q),r)}}
 A.aPe.prototype={
 $0(){return this.a.vU(!0)},
@@ -62929,7 +62929,7 @@ s===$&&A.a()
 return s.bN(0)},
 $S:3}
 A.aFJ.prototype={
-$3(a,b,c){return A.aoo("assets/images/logo/"+A.aY(B.i7[b].h(0,"key"))+".png",null,48)},
+$3(a,b,c){return A.aoo("assets/images/logo/"+A.aY(B.i7[b].h(0,"key"))+".webp",null,48)},
 $S:464}
 A.vU.prototype={
 ad(){return new A.O1(new A.dt(B.aC,$.am()))}}
@@ -63400,13 +63400,13 @@ this.cB()
 this.h_()}}
 A.lD.prototype={
 I(a){var s=null,r=B.a1K.h(0,this.c)
-return A.a5(s,A.aoo(r==null?"assets/images/others.png":r,B.hu,s),B.h,B.LV,s,s,s,this.d,s,s,s,s,1/0)}}
+return A.a5(s,A.aoo(r==null?"assets/images/others.webp":r,B.hu,s),B.h,B.LV,s,s,s,this.d,s,s,s,s,1/0)}}
 A.W3.prototype={
 gn_(){return B.a7m},
 I(a){var s=null
 return A.fU(s,B.f,s,!0,0,s,s,s,0,s,B.r,new A.li($.El(),new A.anw(),s,s,t.Id),s,52)}}
 A.anw.prototype={
-$3(a,b,c){return new A.aU(B.P_,A.aoo("assets/images/logo/"+A.aY(B.i7[b].h(0,"key"))+".png",null,32),null)},
+$3(a,b,c){return new A.aU(B.P_,A.aoo("assets/images/logo/"+A.aY(B.i7[b].h(0,"key"))+".webp",null,32),null)},
 $S:277}
 A.hf.prototype={}
 A.av4.prototype={
@@ -139606,13 +139606,7 @@ B.IX=new A.aq(280,1/0,0,1/0)
 B.qV=new A.aq(36,1/0,36,1/0)
 B.IY=new A.aq(0,1/0,0,500)
 B.ji=new A.aq(1/0,1/0,1/0,1/0)
-B.Ig=new A.yq("assets/images/lace.png",null,null)
-B.J2=new A.yz(4,"fitHeight")
-B.uK=new A.zM(1,"repeatX")
-B.cB=new A.uX(2,"medium")
-B.NO=new A.zc(B.Ig,null,B.J2,B.uK)
 B.u=new A.Tc(0,"rectangle")
-B.jj=new A.aC(null,B.NO,null,null,null,null,B.u)
 B.qW=new A.aC(null,null,null,B.hs,null,null,B.u)
 B.IZ=new A.aC(B.f,null,B.qL,null,null,null,B.u)
 B.ry=new A.F(1,0.7411764705882353,0.7411764705882353,0.7411764705882353,B.i)
@@ -139624,6 +139618,12 @@ B.IL=new A.e0(B.jg,B.q,B.q,B.q)
 B.qX=new A.aC(null,null,B.IL,null,null,null,B.u)
 B.dr=new A.Tc(1,"circle")
 B.J1=new A.aC(B.am,null,null,null,null,null,B.dr)
+B.Ig=new A.yq("assets/images/lace.webp",null,null)
+B.J2=new A.yz(4,"fitHeight")
+B.uK=new A.zM(1,"repeatX")
+B.cB=new A.uX(2,"medium")
+B.NO=new A.zc(B.Ig,null,B.J2,B.uK)
+B.jj=new A.aC(null,B.NO,null,null,null,null,B.u)
 B.hu=new A.yz(1,"contain")
 B.f9=new A.yz(2,"cover")
 B.me=new A.yz(6,"scaleDown")
@@ -142255,7 +142255,7 @@ B.Yh=s([B.ih,null,null,B.iq],t.L)
 B.Uf=s([B.ck,B.ck,B.cs,null],t.L)
 B.a1J=new A.dA(["*",B.TI,"+",B.YC,"-",B.Vx,".",B.Xa,"/",B.Sv,"0",B.ZO,"1",B.Za,"2",B.TZ,"3",B.a_8,"4",B.Z6,"5",B.TU,"6",B.SO,"7",B.UB,"8",B.YE,"9",B.YK,"Alt",B.Uc,"AltGraph",B.ZP,"ArrowDown",B.W7,"ArrowLeft",B.W8,"ArrowRight",B.W9,"ArrowUp",B.a_4,"Clear",B.Z1,"Control",B.Ud,"Delete",B.XX,"End",B.Wa,"Enter",B.TQ,"Home",B.Wb,"Insert",B.Z2,"Meta",B.Ue,"PageDown",B.Wc,"PageUp",B.Yh,"Shift",B.Uf],A.aR("dA<i,O<m?>>"))
 B.a2u={"\u30af\u30c3\u30ad\u30fc":0,"\u30b7\u30e7\u30b3\u30e9":1,"\u548c\u83d3\u5b50":2,"\u713c\u304d\u83d3\u5b50":3,"\u30bc\u30ea\u30fc\u30fb\u30d7\u30ea\u30f3":4,"\u305d\u306e\u4ed6":5}
-B.a1K=new A.bI(B.a2u,["assets/images/cookie.png","assets/images/chocolat.png","assets/images/wagashi.png","assets/images/baked.png","assets/images/pudding.png","assets/images/others.png"],t.l)
+B.a1K=new A.bI(B.a2u,["assets/images/cookie.webp","assets/images/chocolat.webp","assets/images/wagashi.webp","assets/images/baked.webp","assets/images/pudding.webp","assets/images/others.webp"],t.l)
 B.a2v={KeyA:0,KeyB:1,KeyC:2,KeyD:3,KeyE:4,KeyF:5,KeyG:6,KeyH:7,KeyI:8,KeyJ:9,KeyK:10,KeyL:11,KeyM:12,KeyN:13,KeyO:14,KeyP:15,KeyQ:16,KeyR:17,KeyS:18,KeyT:19,KeyU:20,KeyV:21,KeyW:22,KeyX:23,KeyY:24,KeyZ:25,Digit1:26,Digit2:27,Digit3:28,Digit4:29,Digit5:30,Digit6:31,Digit7:32,Digit8:33,Digit9:34,Digit0:35,Minus:36,Equal:37,BracketLeft:38,BracketRight:39,Backslash:40,Semicolon:41,Quote:42,Backquote:43,Comma:44,Period:45,Slash:46}
 B.oD=new A.bI(B.a2v,["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","1","2","3","4","5","6","7","8","9","0","-","=","[","]","\\",";","'","`",",",".","/"],t.l)
 B.a1P=new A.dA([B.iZ,-7,B.ha,1,B.lu,7,B.eZ,-1],A.aR("dA<pD,n>"))
