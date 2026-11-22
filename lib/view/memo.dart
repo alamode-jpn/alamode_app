@@ -1172,7 +1172,7 @@ class _PresentListState extends State<PresentList> {
   Future<void> _loadTabState() async {
     final prefs = await SharedPreferences.getInstance();
     final showSent = prefs.getBool('memo_show_sent') ?? true;
-    setState(() => _showSentPresents = showSent);
+    if (mounted) setState(() => _showSentPresents = showSent);
   }
 
   Future<void> _saveTabState(bool showSent) async {
@@ -1183,7 +1183,9 @@ class _PresentListState extends State<PresentList> {
   Future<void> _loadSortOrder() async {
     final prefs = await SharedPreferences.getInstance();
     final savedOrderIndex = prefs.getInt('sortOrder');
-    if (savedOrderIndex != null && savedOrderIndex < SortOrder.values.length) {
+    if (savedOrderIndex != null &&
+        savedOrderIndex < SortOrder.values.length &&
+        mounted) {
       setState(() {
         _currentSortOrder = SortOrder.values[savedOrderIndex];
       });
@@ -1191,7 +1193,7 @@ class _PresentListState extends State<PresentList> {
   }
 
   Future<void> _loadPresentList() async {
-    setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
     try {
       _presentList = await widget.presentService.getAllPresents();
       _applyFiltersAndSort();
@@ -1220,7 +1222,7 @@ class _PresentListState extends State<PresentList> {
         currentPriceMax: _filterPriceMax,
       ),
     );
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() {
         _filterGenre = result['filterGenre'];
         _filterWho = result['filterWho'];
@@ -1241,7 +1243,7 @@ class _PresentListState extends State<PresentList> {
   void _applyFiltersAndSort() {
     _filteredList = _presentList.where(_meetsFilterCriteria).toList();
     _filteredList.sort(_comparePresents);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   int _comparePresents(Map<String, dynamic> a, Map<String, dynamic> b) {

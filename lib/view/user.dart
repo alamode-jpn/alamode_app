@@ -43,12 +43,16 @@ class _UserScreenState extends State<UserScreen> {
         }
       }
 
-      setState(() {
-        _personList = uniquePersons.toList()..sort();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _personList = uniquePersons.toList()..sort();
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
