@@ -181,6 +181,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               const SnackBar(content: Text('パスワード再設定用のメールを送信しました')),
                             );
                           } catch (e) {
+                            if (!dialogContext.mounted) return;
                             setDialogState(() {
                               sending = false;
                               error = _parseError(e.toString());
