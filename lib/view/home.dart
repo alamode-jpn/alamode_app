@@ -44,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _loadUpcomingBirthdays() async {
-    if (!AuthService.instance.isLoggedIn) return;
     try {
       final result = await PersonService.instance.getUpcomingBirthdays();
       if (mounted) setState(() => _upcomingBirthdays = result);

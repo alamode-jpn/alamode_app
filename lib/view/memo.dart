@@ -1087,6 +1087,15 @@ class PresentManagementService {
   /// 返り値のMapの形は_getAllPresentsFromSupabaseと同じなので、そのまま
   /// PresentFormWidgetのinitialPresentに渡して編集画面を開ける。
   Future<List<Map<String, dynamic>>> getPresentsForWho(String whoId) async {
+    if (!AuthService.instance.isLoggedIn) {
+      final all = await getAllPresents();
+      final filtered = all
+          .where((p) => (p['present_who'] as String?)?.trim() == whoId)
+          .toList();
+      filtered.sort((a, b) =>
+          (b['present_date'] ?? '').toString().compareTo((a['present_date'] ?? '').toString()));
+      return filtered;
+    }
     final uid = AuthService.instance.userId!;
     final data = await supabase
         .from('event')

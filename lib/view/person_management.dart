@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:alamode_app/main.dart';
 import 'package:alamode_app/services/auth_service.dart';
 import 'package:alamode_app/services/person_service.dart';
-import 'package:alamode_app/view/auth.dart';
 import 'package:alamode_app/view/memo.dart' show Constants;
 import 'package:alamode_app/view/person_detail.dart';
 import 'package:alamode_app/widgets/person_icon.dart';
@@ -24,7 +23,7 @@ class _PersonManagementScreenState extends State<PersonManagementScreen> {
   @override
   void initState() {
     super.initState();
-    if (AuthService.instance.isLoggedIn) _load();
+    _load();
   }
 
   Future<void> _load() async {
@@ -46,13 +45,6 @@ class _PersonManagementScreenState extends State<PersonManagementScreen> {
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> _navigateToLogin() async {
-    final loggedIn = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
-    if (loggedIn == true) _load();
   }
 
   Future<void> _rename(Map<String, dynamic> person) async {
@@ -237,37 +229,28 @@ class _PersonManagementScreenState extends State<PersonManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!AuthService.instance.isLoggedIn) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('人物管理')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  '人物管理はログインすると使えます。\n'
-                  'ログインしていない間に登録した「贈った相手」は、\n'
-                  '端末内のみで管理されています。',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.blackLight, height: 1.6),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _navigateToLogin,
-                  child: const Text('ログイン / 新規登録'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(title: const Text('人物管理')),
-      body: _isLoading
+      body: Column(
+        children: [
+          if (!AuthService.instance.isLoggedIn)
+            Container(
+              width: double.infinity,
+              color: AppColors.greyLight,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: const Text(
+                'ログインしていないため、この端末内だけで管理されています。ログインすると他の端末からも使えるようになります。',
+                style: TextStyle(fontSize: 11, color: AppColors.blackLight),
+              ),
+            ),
+          Expanded(child: _buildBody()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text(_error!))
@@ -353,7 +336,6 @@ class _PersonManagementScreenState extends State<PersonManagementScreen> {
                             );
                           },
                         ),
-                ),
-    );
+                );
   }
 }
