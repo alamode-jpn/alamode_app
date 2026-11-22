@@ -3121,29 +3121,19 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.dialogBackground,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
         content: SizedBox(
-          height: 360,
+          height: 340,
           width: 300,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: Theme.of(context).colorScheme.copyWith(
-                    primary: Theme.of(context).primaryColor,
-                    onPrimary: AppColors.blackDark,
-                    surface: AppColors.cardBackground,
-                    onSurface: AppColors.blackDark,
-                  ),
-            ),
-            child: CalendarDatePicker(
-              initialDate: _selectedDate ?? DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-              onDateChanged: (date) {
-                setState(() => _selectedDate = date);
-                Navigator.pop(context);
-              },
-            ),
+          child: _StyledMonthCalendar(
+            selectedDate: _selectedDate,
+            firstDate: DateTime(2000),
+            lastDate: DateTime.now().add(const Duration(days: 365)),
+            onDateChanged: (date) {
+              setState(() => _selectedDate = date);
+              Navigator.pop(context);
+            },
           ),
         ),
         actions: [
@@ -3580,6 +3570,209 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 日付選択ダイアログ用の、アプリのテーマに合わせたシンプルな月間カレンダー。
+/// Flutter標準のCalendarDatePicker/英語ロケールの素朴な見た目ではなく、
+/// 「yyyy / mm」表記・日本語の曜日・テーマカラーで選択日を柔らかく見せる
+/// 独自実装（flutter_localizationsを追加せずに済むメリットもある）。
+class _StyledMonthCalendar extends StatefulWidget {
+  final DateTime? selectedDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+  final ValueChanged<DateTime> onDateChanged;
+
+  const _StyledMonthCalendar({
+    required this.selectedDate,
+    required this.firstDate,
+    required this.lastDate,
+    required this.onDateChanged,
+  });
+
+  @override
+  State<_StyledMonthCalendar> createState() => _StyledMonthCalendarState();
+}
+
+class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
+  static const _weekdayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+  late DateTime _visibleMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    final base = widget.selectedDate ?? DateTime.now();
+    _visibleMonth = DateTime(base.year, base.month);
+  }
+
+  bool get _canGoPrev {
+    final prevMonthEnd = DateTime(_visibleMonth.year, _visibleMonth.month, 0);
+    return !prevMonthEnd.isBefore(widget.firstDate);
+  }
+
+  bool get _canGoNext {
+    final nextMonthStart =
+        DateTime(_visibleMonth.year, _visibleMonth.month + 1, 1);
+    return !nextMonthStart.isAfter(widget.lastDate);
+  }
+
+  void _changeMonth(int delta) {
+    setState(() {
+      _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + delta);
+    });
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  bool _inRange(DateTime day) {
+    final first =
+        DateTime(widget.firstDate.year, widget.firstDate.month, widget.firstDate.day);
+    final last =
+        DateTime(widget.lastDate.year, widget.lastDate.month, widget.lastDate.day);
+    return !day.isBefore(first) && !day.isAfter(last);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+    final today = DateTime.now();
+    final daysInMonth =
+        DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
+    final firstWeekday =
+        DateTime(_visibleMonth.year, _visibleMonth.month, 1).weekday % 7;
+
+    final cells = <Widget>[
+      for (int i = 0; i < firstWeekday; i++) const SizedBox.shrink(),
+    ];
+
+    for (int d = 1; d <= daysInMonth; d++) {
+      final day = DateTime(_visibleMonth.year, _visibleMonth.month, d);
+      final isSelected =
+          widget.selectedDate != null && _isSameDay(day, widget.selectedDate!);
+      final isToday = _isSameDay(day, today);
+      final enabled = _inRange(day);
+
+      final dayCircle = Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isSelected ? primary : null,
+          border: (!isSelected && isToday)
+              ? Border.all(color: primary, width: 1.3)
+              : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: primary.withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          '$d',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight:
+                isSelected || isToday ? FontWeight.w600 : FontWeight.normal,
+            color: !enabled
+                ? AppColors.greyDark
+                : isSelected
+                    ? Colors.white
+                    : isToday
+                        ? primary
+                        : AppColors.blackDark,
+          ),
+        ),
+      );
+
+      cells.add(
+        Padding(
+          padding: const EdgeInsets.all(2),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: enabled
+                ? GestureDetector(
+                    onTap: () => widget.onDateChanged(day),
+                    child: dayCircle,
+                  )
+                : dayCircle,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            children: [
+              _navButton(Icons.chevron_left, _canGoPrev, () => _changeMonth(-1)),
+              Expanded(
+                child: Text(
+                  '${_visibleMonth.year} / ${_visibleMonth.month.toString().padLeft(2, '0')}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'NotoSerifJP',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                    color: AppColors.blackDark,
+                  ),
+                ),
+              ),
+              _navButton(Icons.chevron_right, _canGoNext, () => _changeMonth(1)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: _weekdayLabels
+              .map((w) => Expanded(
+                    child: Center(
+                      child: Text(
+                        w,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.blackLight,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
+        const SizedBox(height: 4),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: GridView.count(
+              crossAxisCount: 7,
+              physics: const NeverScrollableScrollPhysics(),
+              children: cells,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _navButton(IconData icon, bool enabled, VoidCallback onTap) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: enabled
+          ? IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(icon, size: 20, color: AppColors.blackLight),
+              onPressed: onTap,
+            )
+          : Icon(icon, size: 20, color: AppColors.greyLight),
     );
   }
 }
