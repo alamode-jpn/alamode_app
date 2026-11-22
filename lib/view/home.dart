@@ -2019,6 +2019,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
