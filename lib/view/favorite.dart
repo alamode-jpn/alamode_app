@@ -485,6 +485,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
+                    Text(
+                      '${_filteredList.length}件',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.blackLight),
+                    ),
+                    const SizedBox(width: 8),
                     // アクティブフィルターの横スクロール表示
                     if (_hasActiveFilters())
                       Expanded(child: _buildActiveFilters())

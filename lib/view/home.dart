@@ -688,6 +688,12 @@ class _ItemListState extends State<ItemList>
 
   async.Future<List<Map<String, dynamic>>> _applyClientSideFilters(
       List<Map<String, dynamic>> docs) async {
+    return _filterDocsSync(docs);
+  }
+
+  // _applyClientSideFiltersの同期版（実際には待機処理を含まないため、
+  // 件数表示などbuild内から同期的に呼べるようロジックを共通化している）。
+  List<Map<String, dynamic>> _filterDocsSync(List<Map<String, dynamic>> docs) {
     List<Map<String, dynamic>> filteredDocs = [];
     for (var item in docs) {
 // カテゴリーフィルタリング（特定のカテゴリータブの場合）
@@ -760,10 +766,19 @@ class _ItemListState extends State<ItemList>
   }
 
   Widget _buildFilterAndSortRow() {
+    final count =
+        _cachedDocs != null ? _filterDocsSync(_cachedDocs!).length : null;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
+          if (count != null) ...[
+            Text(
+              '$count件',
+              style: const TextStyle(fontSize: 12, color: AppColors.blackLight),
+            ),
+            const SizedBox(width: 8),
+          ],
           // アクティブフィルターの横スクロール表示
           if (_hasActiveFilters())
             Expanded(child: _buildActiveFilters())
