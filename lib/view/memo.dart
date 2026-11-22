@@ -3385,7 +3385,7 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
                       children: [
                         Text(
                           _selectedDate != null
-                              ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+                              ? DateFormat('yyyy/MM/dd').format(_selectedDate!)
                               : '未設定',
                           style: TextStyle(
                             fontSize: 16,
@@ -3596,8 +3596,71 @@ class _StyledMonthCalendar extends StatefulWidget {
 }
 
 class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
-  static const _weekdayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+  // 月曜始まり
+  static const _weekdayLabels = ['月', '火', '水', '木', '金', '土', '日'];
   late DateTime _visibleMonth;
+  bool _showYearPicker = false;
+
+  int _nthWeekdayOfMonth(int year, int month, int weekday, int n) {
+    final first = DateTime(year, month, 1);
+    final offset = (weekday - first.weekday + 7) % 7;
+    return 1 + offset + (n - 1) * 7;
+  }
+
+  /// 日本の祝日（固定日・第n月曜日・春分/秋分の近似式・振替休日）。
+  /// 春分/秋分は天文計算の近似式のため稀にずれる可能性があるが、
+  /// カレンダー上の色分け用途としては十分な精度。
+  Set<DateTime> _fixedHolidays(int year) {
+    final holidays = <DateTime>{};
+    void add(int m, int d) => holidays.add(DateTime(year, m, d));
+    add(1, 1); // 元日
+    holidays.add(
+        DateTime(year, 1, _nthWeekdayOfMonth(year, 1, DateTime.monday, 2))); // 成人の日
+    add(2, 11); // 建国記念の日
+    add(2, 23); // 天皇誕生日
+    final shunbun =
+        (20.8431 + 0.242194 * (year - 1980) - ((year - 1980) / 4).floor())
+            .floor();
+    add(3, shunbun); // 春分の日
+    add(4, 29); // 昭和の日
+    add(5, 3); // 憲法記念日
+    add(5, 4); // みどりの日
+    add(5, 5); // こどもの日
+    holidays.add(
+        DateTime(year, 7, _nthWeekdayOfMonth(year, 7, DateTime.monday, 3))); // 海の日
+    add(8, 11); // 山の日
+    holidays.add(DateTime(
+        year, 9, _nthWeekdayOfMonth(year, 9, DateTime.monday, 3))); // 敬老の日
+    final shuubun =
+        (23.2488 + 0.242194 * (year - 1980) - ((year - 1980) / 4).floor())
+            .floor();
+    add(9, shuubun); // 秋分の日
+    holidays.add(DateTime(
+        year, 10, _nthWeekdayOfMonth(year, 10, DateTime.monday, 2))); // スポーツの日
+    add(11, 3); // 文化の日
+    add(11, 23); // 勤労感謝の日
+    return holidays;
+  }
+
+  bool _isHoliday(DateTime date) {
+    final base = DateTime(date.year, date.month, date.day);
+    final holidays = <DateTime>{
+      ..._fixedHolidays(date.year - 1),
+      ..._fixedHolidays(date.year),
+      ..._fixedHolidays(date.year + 1),
+    };
+    if (holidays.contains(base)) return true;
+    // 振替休日: 日曜の祝日の次の平日
+    if (base.weekday != DateTime.sunday) {
+      var cursor = base.subtract(const Duration(days: 1));
+      if (!holidays.contains(cursor)) return false;
+      while (holidays.contains(cursor.subtract(const Duration(days: 1)))) {
+        cursor = cursor.subtract(const Duration(days: 1));
+      }
+      if (cursor.weekday == DateTime.sunday) return true;
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -3640,8 +3703,11 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
     final today = DateTime.now();
     final daysInMonth =
         DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
+    // 月曜始まり: 月曜(1)が列0になるようにする
     final firstWeekday =
-        DateTime(_visibleMonth.year, _visibleMonth.month, 1).weekday % 7;
+        DateTime(_visibleMonth.year, _visibleMonth.month, 1).weekday - 1;
+
+    const saturdayColor = Color(0xFF4C7CC9);
 
     final cells = <Widget>[
       for (int i = 0; i < firstWeekday; i++) const SizedBox.shrink(),
@@ -3653,6 +3719,14 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
           widget.selectedDate != null && _isSameDay(day, widget.selectedDate!);
       final isToday = _isSameDay(day, today);
       final enabled = _inRange(day);
+      final isSunday = day.weekday == DateTime.sunday;
+      final isSaturday = day.weekday == DateTime.saturday;
+      final isHoliday = isSunday || _isHoliday(day);
+      final weekendColor = isHoliday
+          ? AppColors.errorColor
+          : isSaturday
+              ? saturdayColor
+              : null;
 
       final dayCircle = Container(
         alignment: Alignment.center,
@@ -3684,7 +3758,7 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
                     ? Colors.white
                     : isToday
                         ? primary
-                        : AppColors.blackDark,
+                        : weekendColor ?? AppColors.blackDark,
           ),
         ),
       );
@@ -3711,54 +3785,142 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             children: [
-              _navButton(Icons.chevron_left, _canGoPrev, () => _changeMonth(-1)),
+              _navButton(
+                Icons.chevron_left,
+                !_showYearPicker && _canGoPrev,
+                () => _changeMonth(-1),
+              ),
               Expanded(
-                child: Text(
-                  '${_visibleMonth.year} / ${_visibleMonth.month.toString().padLeft(2, '0')}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'NotoSerifJP',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.0,
-                    color: AppColors.blackDark,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _showYearPicker = !_showYearPicker),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _showYearPicker
+                            ? '年を選択'
+                            : '${_visibleMonth.year} / ${_visibleMonth.month.toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontFamily: 'NotoSerifJP',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.0,
+                          color: AppColors.blackDark,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        _showYearPicker
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        size: 18,
+                        color: AppColors.blackLight,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              _navButton(Icons.chevron_right, _canGoNext, () => _changeMonth(1)),
+              _navButton(
+                Icons.chevron_right,
+                !_showYearPicker && _canGoNext,
+                () => _changeMonth(1),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 14),
-        Row(
-          children: _weekdayLabels
-              .map((w) => Expanded(
-                    child: Center(
-                      child: Text(
-                        w,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.blackLight,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+        if (_showYearPicker)
+          Expanded(child: _buildYearGrid())
+        else ...[
+          Row(
+            children: _weekdayLabels.asMap().entries.map((entry) {
+              // 月曜始まり: index5=土, index6=日
+              final color = entry.key == 6
+                  ? AppColors.errorColor
+                  : entry.key == 5
+                      ? const Color(0xFF4C7CC9)
+                      : AppColors.blackLight;
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    entry.value,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: color,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
                     ),
-                  ))
-              .toList(),
-        ),
-        const SizedBox(height: 4),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: GridView.count(
-              crossAxisCount: 7,
-              physics: const NeverScrollableScrollPhysics(),
-              children: cells,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: GridView.count(
+                crossAxisCount: 7,
+                physics: const NeverScrollableScrollPhysics(),
+                children: cells,
+              ),
             ),
           ),
-        ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildYearGrid() {
+    final primary = Theme.of(context).primaryColor;
+    final years = [
+      for (int y = widget.firstDate.year; y <= widget.lastDate.year; y++) y,
+    ];
+    return ClipRect(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 2.4,
+        children: years.map((y) {
+          final isSelected = y == _visibleMonth.year;
+          return Padding(
+            padding: const EdgeInsets.all(4),
+            child: GestureDetector(
+              onTap: () => setState(() {
+                _visibleMonth = DateTime(y, _visibleMonth.month);
+                _showYearPicker = false;
+              }),
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected ? primary : null,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: primary.withValues(alpha: 0.35),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  '$y',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected ? Colors.white : AppColors.blackDark,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+        ),
+      ),
     );
   }
 
