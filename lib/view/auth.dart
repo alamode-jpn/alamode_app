@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       await AuthService.instance.signIn(_loginEmailCtrl.text, _loginPasswordCtrl.text);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      setState(() => _loginError = _parseError(e.toString()));
+      if (mounted) setState(() => _loginError = _parseError(e.toString()));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         );
       }
     } catch (e) {
-      setState(() => _signupError = _parseError(e.toString()));
+      if (mounted) setState(() => _signupError = _parseError(e.toString()));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
