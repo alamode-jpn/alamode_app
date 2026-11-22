@@ -56905,7 +56905,7 @@ break
 case 4:p=3
 i=o.pop()
 l=A.a_(i)
-m.F(new A.aPx(m,l))
+if(m.c!=null)m.F(new A.aPx(m,l))
 n.push(6)
 s=5
 break
@@ -56948,7 +56948,7 @@ break
 case 4:p=3
 f=o.pop()
 l=A.a_(f)
-m.F(new A.aPO(m,l))
+if(m.c!=null)m.F(new A.aPO(m,l))
 n.push(6)
 s=5
 break
