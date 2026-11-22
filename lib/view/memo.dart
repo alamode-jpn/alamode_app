@@ -2648,11 +2648,11 @@ class _PresentFormWidgetState extends State<PresentFormWidget> {
 
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    if (pickedFile != null && mounted) {
       setState(() => _pickedFiles.add(pickedFile));
       if (kIsWeb) {
         final imageBytes = await pickedFile.readAsBytes();
-        setState(() => _webImages.add(imageBytes));
+        if (mounted) setState(() => _webImages.add(imageBytes));
       }
     }
   }
@@ -3635,6 +3635,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   }
 
   void _performSearch(String query) async {
+    if (!mounted) return;
     final requestId = ++_searchRequestId;
     if (query.isEmpty) {
       setState(() {
