@@ -1781,7 +1781,7 @@ class _PresentListState extends State<PresentList> {
                 height: 40.0,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/lace.png'),
+                    image: AssetImage('assets/images/lace.webp'),
                     repeat: ImageRepeat.repeatX,
                     fit: BoxFit.fitHeight,
                   ),

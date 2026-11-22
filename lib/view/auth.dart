@@ -474,7 +474,7 @@ class _LoginPromptDialogState extends State<LoginPromptDialog> {
               children: [
                 Center(
                   child: Image.asset(
-                    'assets/images/others.png',
+                    'assets/images/others.webp',
                     height: 100,
                     fit: BoxFit.contain,
                   ),

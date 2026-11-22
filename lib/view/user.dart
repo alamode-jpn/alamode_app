@@ -387,7 +387,7 @@ class _UserScreenState extends State<UserScreen> {
                 height: 40.0,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/lace.png'),
+                    image: AssetImage('assets/images/lace.webp'),
                     repeat: ImageRepeat.repeatX,
                     fit: BoxFit.fitHeight,
                   ),
@@ -2385,7 +2385,7 @@ class _AboutScreenState extends State<_AboutScreen>
                     valueListenable: themeNotifier,
                     builder: (context, idx, _) {
                       final key = appThemes[idx]['key'] as String;
-                      return Image.asset('assets/images/logo/$key.png', height: 48);
+                      return Image.asset('assets/images/logo/$key.webp', height: 48);
                     },
                   ),
                 ),

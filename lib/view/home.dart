@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen>
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/lace.png'),
+              image: AssetImage('assets/images/lace.webp'),
               repeat: ImageRepeat.repeatX,
               fit: BoxFit.fitHeight,
             ),

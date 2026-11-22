@@ -22,7 +22,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Image.asset(
-              'assets/images/logo/$key.png',
+              'assets/images/logo/$key.webp',
               height: 32,
             ),
           );
