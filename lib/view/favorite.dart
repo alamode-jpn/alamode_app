@@ -19,6 +19,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   List<Map<String, dynamic>> _itemList = [];
   List<Map<String, dynamic>> _filteredList = [];
   bool _isOfflineFallback = false;
+  bool _initialLoading = true;
   static const String _favoriteItemsCacheKey = 'favorite_items_cache';
 
   // フィルター・ソート用の変数（homeと同じ）
@@ -56,10 +57,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     final favoriteIds = await _getFavoriteItems();
     if (favoriteIds.isEmpty) {
-      setState(() {
-        _itemList = [];
-        _applyFiltersAndSort();
-      });
+      if (mounted) {
+        setState(() {
+          _itemList = [];
+          _applyFiltersAndSort();
+          _initialLoading = false;
+        });
+      }
       _isLoading = false;
       return;
     }
@@ -78,11 +82,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       }
 
       final items = List<Map<String, dynamic>>.from(data);
-      setState(() {
-        _itemList = items;
-        _isOfflineFallback = false;
-        _applyFiltersAndSort();
-      });
+      if (mounted) {
+        setState(() {
+          _itemList = items;
+          _isOfflineFallback = false;
+          _applyFiltersAndSort();
+          _initialLoading = false;
+        });
+      }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_favoriteItemsCacheKey, jsonEncode(items));
     } catch (e) {
@@ -95,15 +102,19 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             .map((e) => Map<String, dynamic>.from(e as Map))
             .where((item) => favoriteIds.contains(item['item_id']?.toString()))
             .toList();
-        if (cachedItems.isNotEmpty) {
+        if (cachedItems.isNotEmpty && mounted) {
           setState(() {
             _itemList = cachedItems;
             _isOfflineFallback = true;
             _applyFiltersAndSort();
+            _initialLoading = false;
           });
         }
       }
       // キャッシュも無い場合は既存の表示（前回ロード分）を維持する
+    }
+    if (_initialLoading && mounted) {
+      setState(() => _initialLoading = false);
     }
     _isLoading = false;
   }
@@ -525,7 +536,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _loadFavoriteItems,
-                child: _filteredList.isEmpty
+                child: _initialLoading
+                  ? buildItemListSkeleton()
+                  : _filteredList.isEmpty
                   ? ListView(
                       children: [
                         Padding(

@@ -594,7 +594,7 @@ class _ItemListState extends State<ItemList>
                     future: _getFilteredQuery(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return buildItemListSkeleton();
                       }
                       if (snapshot.hasError) {
                         return const Center(child: Text('エラーが発生しました'));
@@ -637,7 +637,7 @@ class _ItemListState extends State<ItemList>
       future: _applyClientSideFilters(docs),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return buildItemListSkeleton();
         }
 
         if (snapshot.hasError) {
@@ -1130,6 +1130,152 @@ class _ItemListState extends State<ItemList>
       _saveFilterPrefs();
     }
   }
+}
+
+/// 横方向に光が走るプレースホルダー矩形（読み込み中のカードの形を示す）。
+class _ShimmerBox extends StatefulWidget {
+  final double? width;
+  final double height;
+  final BorderRadius borderRadius;
+  const _ShimmerBox({
+    this.width,
+    required this.height,
+    this.borderRadius = BorderRadius.zero,
+  });
+
+  @override
+  State<_ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<_ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final dx = (_controller.value * 3) - 1.5;
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius,
+            gradient: LinearGradient(
+              begin: Alignment(dx - 1, 0),
+              end: Alignment(dx + 1, 0),
+              colors: const [
+                Color(0xFFECECEC),
+                Color(0xFFF6F6F6),
+                Color(0xFFECECEC),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// ItemCardと同じ寸法のプレースホルダー。読み込み完了前にカードの形を先に見せ、
+/// 体感速度を上げるためのもの（内容はShimmerBoxで表現する）。
+class ItemCardSkeleton extends StatelessWidget {
+  final int index;
+  const ItemCardSkeleton({super.key, this.index = 0});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: index == 0 ? 0 : 2, bottom: 4),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: AppColors.greyMedium, width: 0.5),
+          bottom: BorderSide(color: AppColors.greyMedium, width: 1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 8, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _ShimmerBox(
+                  width: 150,
+                  height: 14,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const _ShimmerBox(
+                      width: 60,
+                      height: 10,
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                    ),
+                    const Spacer(),
+                    const _ShimmerBox(
+                      width: 36,
+                      height: 14,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    const SizedBox(width: 8),
+                    const _ShimmerBox(
+                      width: 28,
+                      height: 20,
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+          const _ShimmerBox(height: 90),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: const [
+                _ShimmerBox(
+                  width: 70,
+                  height: 13,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 一覧の読み込み中に表示するスケルトンリスト。
+Widget buildItemListSkeleton({int count = 4}) {
+  return ListView.builder(
+    itemCount: count,
+    itemBuilder: (context, index) => ItemCardSkeleton(index: index),
+  );
 }
 
 class ItemCard extends StatelessWidget {
