@@ -310,7 +310,9 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(present['present_date'] as String? ?? '',
+                      Text(
+                          (present['present_date'] as String? ?? '')
+                              .replaceAll('-', '/'),
                           style: const TextStyle(
                               fontSize: 11, color: AppColors.blackLight)),
                     ],

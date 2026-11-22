@@ -276,7 +276,10 @@ class _UserScreenState extends State<UserScreen> {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                present['present_date'] ?? '',
+                                                (present['present_date']
+                                                            as String? ??
+                                                        '')
+                                                    .replaceAll('-', '/'),
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: AppColors.blackLight,

@@ -1659,7 +1659,7 @@ class _PresentListState extends State<PresentList> {
               const Icon(Icons.calendar_month, size: 13, color: AppColors.blackLight),
               const SizedBox(width: 3),
               Text(
-                present['present_date'] ?? '',
+                (present['present_date'] as String? ?? '').replaceAll('-', '/'),
                 style: const TextStyle(fontSize: 12, color: AppColors.blackLight),
               ),
               if (present['_pendingSync'] == true) ...[
