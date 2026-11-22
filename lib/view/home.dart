@@ -994,11 +994,12 @@ class _ItemListState extends State<ItemList>
 
   Widget _buildFilterChip(
       {required String label, required VoidCallback onRemove}) {
+    final primary = Theme.of(context).primaryColor;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.greyLight.withValues(alpha: 0.8),
+        color: primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.greyLight),
+        border: Border.all(color: primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1007,9 +1008,9 @@ class _ItemListState extends State<ItemList>
             padding: const EdgeInsets.only(left: 12, top: 6, bottom: 6),
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.blackDark,
+                color: primary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1019,10 +1020,10 @@ class _ItemListState extends State<ItemList>
             child: Container(
               padding: const EdgeInsets.all(4),
               margin: const EdgeInsets.only(left: 4, right: 4),
-              child: const Icon(
+              child: Icon(
                 Icons.close,
                 size: 14,
-                color: AppColors.blackLight,
+                color: primary.withValues(alpha: 0.7),
               ),
             ),
           ),
