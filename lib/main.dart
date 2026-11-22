@@ -118,9 +118,20 @@ final supabase = Supabase.instance.client;
 /// 初回ログイン後に一度だけ、投稿写真が他ユーザーにも公開されうる旨を
 /// 改めてポップアップで案内する（ログイン画面の注意書きだけでは見落とす
 /// 可能性があるため、二重に案内する）。
+bool _photoNoticeInFlight = false;
+
 Future<void> _maybeShowPhotoPublishNoticeDialog() async {
   final uid = AuthService.instance.userId;
-  if (uid == null) return;
+  if (uid == null || _photoNoticeInFlight) return;
+  _photoNoticeInFlight = true;
+  try {
+    await _showPhotoPublishNoticeDialogIfNeeded(uid);
+  } finally {
+    _photoNoticeInFlight = false;
+  }
+}
+
+Future<void> _showPhotoPublishNoticeDialogIfNeeded(String uid) async {
   final prefs = await SharedPreferences.getInstance();
   final key = 'photo_publish_notice_seen_$uid';
   if (prefs.getBool(key) ?? false) return;
