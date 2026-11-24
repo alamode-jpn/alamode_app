@@ -3609,6 +3609,7 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
   static const _weekdayLabels = ['月', '火', '水', '木', '金', '土', '日'];
   late DateTime _visibleMonth;
   bool _showYearPicker = false;
+  final GlobalKey _selectedYearKey = GlobalKey();
 
   int _nthWeekdayOfMonth(int year, int month, int weekday, int n) {
     final first = DateTime(year, month, 1);
@@ -3693,6 +3694,22 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
     setState(() {
       _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + delta);
     });
+  }
+
+  void _toggleYearPicker() {
+    setState(() => _showYearPicker = !_showYearPicker);
+    if (_showYearPicker) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _selectedYearKey.currentContext;
+        if (ctx != null) {
+          Scrollable.ensureVisible(
+            ctx,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 200),
+          );
+        }
+      });
+    }
   }
 
   bool _isSameDay(DateTime a, DateTime b) =>
@@ -3802,7 +3819,7 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
               Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => _showYearPicker = !_showYearPicker),
+                  onTap: _toggleYearPicker,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -3895,6 +3912,7 @@ class _StyledMonthCalendarState extends State<_StyledMonthCalendar> {
         children: years.map((y) {
           final isSelected = y == _visibleMonth.year;
           return Padding(
+            key: isSelected ? _selectedYearKey : null,
             padding: const EdgeInsets.all(4),
             child: GestureDetector(
               onTap: () => setState(() {
